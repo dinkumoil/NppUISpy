@@ -1,7 +1,7 @@
 
 ********************************************************************************
 *                                                                              *
-*          NppUISpy plugin v1.0.2 for Notepad++                                *
+*          NppUISpy plugin v1.0.3 for Notepad++                                *
 *          Builds for 32 and 64 bits Notepad++ installations available         *
 *                                                                              *
 *          Author: Andreas Heim, 2018                                          *
@@ -22,7 +22,7 @@ Menu items are displayed as a tree structure and toolbar buttons as a list. You
 can left-click on both kind of items to execute the related command.
 
 With a right click to the items a context menu pops up where you can select to
-copy the item text or its menu command id to the clipboard.
+copy the item's icon, its text or its menu command id to the clipboard.
 
 Both the menu item tree and the toolbar button list provide full-text search.
 Start typing while one of them is focused to make the first matching item
@@ -33,6 +33,12 @@ getting highlighted.
 ===========
   History
 ===========
+
+v1.0.3 - December 2018
+~~~~~~~~~~~~~~~~~~~~~~
+- enhanced: The context menu of selected elements provides the ability to copy
+            the element's icon.
+
 
 v1.0.2 - December 2018
 ~~~~~~~~~~~~~~~~~~~~~~

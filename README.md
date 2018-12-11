@@ -9,7 +9,7 @@ Author: Andreas Heim, 2018
 
 With this plugin you can explore the main menu structure and the toolbar of Notepad++ to figure out which menu command ids are assigned to menu items and toolbar buttons.
 
-You can left-click on menu item and toolbar button entries to execute the related command. With a right-click to the items a context menu pops up where you can select to copy the item text or its menu command id to the clipboard.
+You can left-click on menu item and toolbar button entries to execute the related command. With a right-click to the items a context menu pops up where you can select to copy the item's icon, its text or its menu command id to the clipboard.
 
 Both the menu item tree and the toolbar button list provide full-text search. Start typing while one of them is focused to make the first matching item getting highlighted.
 
@@ -42,6 +42,10 @@ The following steps depend on the version of Notepad++ you use.
 
 
 # History
+
+v1.0.3 - December 2018
+- enhanced: The context menu of selected elements provides the ability to copy the element's icon.
+
 
 v1.0.2 - December 2018
 - enhanced: Added toolbar icon.
