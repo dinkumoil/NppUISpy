@@ -42,11 +42,12 @@ type
     imlToolbarButtonIcons: TImageList;
 
     mnuItemContextMenu: TPopupMenu;
+    mniCopyIcon: TMenuItem;
     mniCopyText: TMenuItem;
     mniCopyCommandId: TMenuItem;
 
+    btnReloadData: TButton;
     btnQuit: TButton;
-    btnReadStrings: TButton;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -112,12 +113,13 @@ type
 
     // .........................................................................
 
-    procedure mniCopyItemData(Sender: TObject);
+    procedure mnuItemContextMenuPopup(Sender: TObject);
+    procedure mniCopyItemDataClick(Sender: TObject);
 
     procedure btnCollapseClick(Sender: TObject);
     procedure btnExpandClick(Sender: TObject);
 
-    procedure btnReadStringsClick(Sender: TObject);
+    procedure btnReloadDataClick(Sender: TObject);
     procedure btnQuitClick(Sender: TObject);
 
   private type
@@ -171,13 +173,11 @@ type
 
     procedure   ListMenuItems(AMenu: HMENU = 0; AList: TMenuItemTreeInfoList = nil);
     procedure   FillMenuItemTree(ANode: PVirtualNode = nil; AList: TMenuItemTreeInfoList = nil);
-    procedure   HandleMenuItemLeftClick();
     procedure   GetMenuItemText(out Result: string; CmdId: cardinal; AList: TMenuItemTreeInfoList = nil);
     function    NormalizeMenuItemText(const AText: string): string;
 
     function    ListToolbarButtons(ReList: boolean): boolean;
     procedure   FillToolbarButtonTree();
-    procedure   HandleToolbarButtonLeftClick();
     function    GetToolbarButtonIdx(CmdId: cardinal): integer;
     function    FindNppToolbar(NppWnd: HWND): HWND;
 
@@ -289,11 +289,34 @@ end;
 
 
 procedure TfrmSpy.vstMenuItemsNodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
+var
+  NodeData: PMenuItemTreeData;
+  MousePos: TPoint;
+
 begin
   FHitInfo := HitInfo;
 
   if ssLeft in FMouseButtonState then
-    HandleMenuItemLeftClick();
+  begin
+    NodeData := PMenuItemTreeData(vstMenuItems.GetNodeData(FHitInfo.HitNode));
+
+    if (FHitInfo.HitPositions * [hiOnItemLabel, hiOnItemRight, hiOnNormalIcon] <> []) and
+       (NodeData.NppMenuItem.CmdId <> 0)                                              then
+      Plugin.PerformMenuCommand(NodeData.NppMenuItem.CmdId);
+  end
+
+  else if ssRight in FMouseButtonState then
+  begin
+    if Assigned(vstMenuItems.PopupMenu)     and
+       not vstMenuItems.PopupMenu.AutoPopup then
+    begin
+      try
+        MousePos := Mouse.CursorPos;  // Can cause exception
+        vstMenuItems.PopupMenu.Popup(MousePos.X, MousePos.Y);
+      except
+      end;
+    end;
+  end;
 end;
 
 
@@ -425,11 +448,34 @@ end;
 
 
 procedure TfrmSpy.vstToolbarButtonsNodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
+var
+  NodeData: PToolbarButtonTreeData;
+  MousePos: TPoint;
+
 begin
   FHitInfo := HitInfo;
 
   if ssLeft in FMouseButtonState then
-    HandleToolbarButtonLeftClick();
+  begin
+    NodeData := PToolbarButtonTreeData(vstToolbarButtons.GetNodeData(FHitInfo.HitNode));
+
+    if (FHitInfo.HitPositions * [hiOnItem, hiOnItemLabel] <> []) and
+       (NodeData.NppToolbarButton.CmdId <> 0)                    then
+      Plugin.PerformMenuCommand(NodeData.NppToolbarButton.CmdId);
+  end
+
+  else if ssRight in FMouseButtonState then
+  begin
+    if Assigned(vstToolbarButtons.PopupMenu)     and
+       not vstToolbarButtons.PopupMenu.AutoPopup then
+    begin
+      try
+        MousePos := Mouse.CursorPos;  // Can cause exception
+        vstToolbarButtons.PopupMenu.Popup(MousePos.X, MousePos.Y);
+      except
+      end;
+    end;
+  end;
 end;
 
 
@@ -544,7 +590,7 @@ end;
 // Other GUI elements
 // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-procedure TfrmSpy.mniCopyItemData(Sender: TObject);
+procedure TfrmSpy.mnuItemContextMenuPopup(Sender: TObject);
 var
   NodeDataMenuItem:      PMenuItemTreeData;
   NodeDataToolbarButton: PToolbarButtonTreeData;
@@ -552,9 +598,46 @@ var
 begin
   if vstMenuItems.Focused and (vstMenuItems.FocusedNode = FHitInfo.HitNode) then
   begin
+    NodeDataMenuItem    := PMenuItemTreeData(vstMenuItems.GetNodeData(FHitInfo.HitNode));
+    mniCopyIcon.Enabled := (NodeDataMenuItem.NppMenuItem.ImageIndex >= 0);
+  end
+
+  else if vstToolbarButtons.Focused and (vstToolbarButtons.FocusedNode = FHitInfo.HitNode) then
+  begin
+    NodeDataToolbarButton := PToolbarButtonTreeData(vstToolbarButtons.GetNodeData(FHitInfo.HitNode));
+    mniCopyIcon.Enabled   := (NodeDataToolbarButton.NppToolbarButton.ImageIndex >= 0);
+  end
+
+  else
+    mniCopyIcon.Enabled := false;
+end;
+
+
+procedure TfrmSpy.mniCopyItemDataClick(Sender: TObject);
+var
+  NodeDataMenuItem:      PMenuItemTreeData;
+  NodeDataToolbarButton: PToolbarButtonTreeData;
+  ItemImage:             TBitmap;
+
+begin
+  if vstMenuItems.Focused and (vstMenuItems.FocusedNode = FHitInfo.HitNode) then
+  begin
     NodeDataMenuItem := PMenuItemTreeData(vstMenuItems.GetNodeData(FHitInfo.HitNode));
 
-    if Sender = mniCopyText then
+    if (Sender = mniCopyIcon) and (NodeDataMenuItem.NppMenuItem.ImageIndex >= 0) then
+    begin
+      ItemImage := TBitmap.Create;
+
+      try
+        vstMenuItems.Images.GetBitmap(NodeDataMenuItem.NppMenuItem.ImageIndex, ItemImage);
+        Clipboard.Assign(ItemImage);
+
+      finally
+        ItemImage.Free;
+      end;
+    end
+
+    else if Sender = mniCopyText then
       Clipboard.AsText := NodeDataMenuItem.NppMenuItem.Text
 
     else if Sender = mniCopyCommandId then
@@ -565,7 +648,20 @@ begin
   begin
     NodeDataToolbarButton := PToolbarButtonTreeData(vstToolbarButtons.GetNodeData(FHitInfo.HitNode));
 
-    if Sender = mniCopyText then
+    if (Sender = mniCopyIcon) and (NodeDataToolbarButton.NppToolbarButton.ImageIndex >= 0) then
+    begin
+      ItemImage := TBitmap.Create;
+
+      try
+        vstToolbarButtons.Images.GetBitmap(NodeDataToolbarButton.NppToolbarButton.ImageIndex, ItemImage);
+        Clipboard.Assign(ItemImage);
+
+      finally
+        ItemImage.Free;
+      end;
+    end
+
+    else if Sender = mniCopyText then
       Clipboard.AsText := NodeDataToolbarButton.NppToolbarButton.HintText
 
     else if Sender = mniCopyCommandId then
@@ -586,7 +682,7 @@ begin
 end;
 
 
-procedure TfrmSpy.btnReadStringsClick(Sender: TObject);
+procedure TfrmSpy.btnReloadDataClick(Sender: TObject);
 begin
   UpdateGUI();
 end;
@@ -753,19 +849,6 @@ begin
       vstMenuItems.Refresh;
     end;
   end
-end;
-
-
-procedure TfrmSpy.HandleMenuItemLeftClick();
-var
-  NodeData: PMenuItemTreeData;
-
-begin
-  NodeData := PMenuItemTreeData(vstMenuItems.GetNodeData(FHitInfo.HitNode));
-
-  if (FHitInfo.HitPositions * [hiOnItemLabel, hiOnItemRight, hiOnNormalIcon] <> []) and
-     (NodeData.NppMenuItem.CmdId <> 0)                                              then
-    Plugin.PerformMenuCommand(NodeData.NppMenuItem.CmdId);
 end;
 
 
@@ -995,19 +1078,6 @@ begin
     vstToolbarButtons.EndUpdate;
     vstToolbarButtons.Refresh;
   end
-end;
-
-
-procedure TfrmSpy.HandleToolbarButtonLeftClick();
-var
-  NodeData: PToolbarButtonTreeData;
-
-begin
-  NodeData := PToolbarButtonTreeData(vstToolbarButtons.GetNodeData(FHitInfo.HitNode));
-
-  if (FHitInfo.HitPositions * [hiOnItem, hiOnItemLabel] <> []) and
-     (NodeData.NppToolbarButton.CmdId <> 0)                    then
-    Plugin.PerformMenuCommand(NodeData.NppToolbarButton.CmdId);
 end;
 
 

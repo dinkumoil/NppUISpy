@@ -179,31 +179,37 @@ object frmSpy: TfrmSpy
     TabOrder = 5
     OnClick = btnQuitClick
   end
-  object btnReadStrings: TButton
+  object btnReloadData: TButton
     Left = 598
     Top = 311
     Width = 80
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'Update'
+    Caption = 'Reload'
     Default = True
     TabOrder = 4
-    OnClick = btnReadStringsClick
+    OnClick = btnReloadDataClick
   end
   object imlToolbarButtonIcons: TImageList
     Left = 64
     Top = 296
   end
   object mnuItemContextMenu: TPopupMenu
+    AutoPopup = False
+    OnPopup = mnuItemContextMenuPopup
     Left = 296
     Top = 296
+    object mniCopyIcon: TMenuItem
+      Caption = 'Copy Icon'
+      OnClick = mniCopyItemDataClick
+    end
     object mniCopyText: TMenuItem
       Caption = 'Copy Text'
-      OnClick = mniCopyItemData
+      OnClick = mniCopyItemDataClick
     end
     object mniCopyCommandId: TMenuItem
       Caption = 'Copy Command Id'
-      OnClick = mniCopyItemData
+      OnClick = mniCopyItemDataClick
     end
   end
 end
