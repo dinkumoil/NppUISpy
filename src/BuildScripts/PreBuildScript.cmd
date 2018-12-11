@@ -40,6 +40,11 @@ set "Platform=%~3"
 
 
 :Step1
+call "Res\res.cmd" /s
+if %ERRORLEVEL% neq 0 goto :Abort
+
+
+:Step2
 goto :Quit
 
 

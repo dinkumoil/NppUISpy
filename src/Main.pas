@@ -38,9 +38,11 @@ type
   private
     FMenuItemIdxSpy:   integer;
     FMenuItemIdxAbout: integer;
+    FToolbarBmp:       TBitmap;
 
   protected
     // Handler for certain Notepad++ events
+    procedure   DoNppnToolbarModification; override;
 
   public
     constructor Create; override;
@@ -60,12 +62,17 @@ var
 
 implementation
 
+{$R .\Res\images.res}
+
+
 const
   // Plugin name
   TXT_PLUGIN_NAME:    string = 'NppUISpy';
 
   TXT_MENUITEM_SPY:   string = 'Spy!';
   TXT_MENUITEM_ABOUT: string = 'About';
+
+  ID_TOOLBAR_ICON:    string = 'TOOLBAR_ICON';
 
 
 // Functions associated to the plugin's Notepad++ menu entries
@@ -101,6 +108,9 @@ end;
 
 destructor TNppUISpyPlugin.Destroy;
 begin
+  // Cleanup
+  FToolbarBmp.Free;
+
   // It's totally legal to call Free on already freed instances,
   // no checks needed
   frmSpy.Free;
@@ -119,6 +129,25 @@ end;
 // -----------------------------------------------------------------------------
 // Event handler
 // -----------------------------------------------------------------------------
+
+// Called when Notepad++ is ready for toolbar modifications
+procedure TNppUISpyPlugin.DoNppnToolbarModification;
+var
+  IconData: TToolbarIcons;
+
+begin
+  inherited;
+
+  FToolbarBmp := TBitmap.Create;
+
+  FToolbarBmp.LoadFromResourceName(HInstance, ID_TOOLBAR_ICON);
+  FToolbarBmp.PixelFormat := pf8Bit;
+
+  IconData.ToolbarBmp  := FToolbarBmp.Handle;
+  IconData.ToolbarIcon := 0;
+
+  AddToolbarIcon(CmdIdFromMenuItemIdx(FMenuItemIdxSpy), IconData);
+end;
 
 
 
