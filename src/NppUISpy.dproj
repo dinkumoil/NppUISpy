@@ -3,7 +3,7 @@
 			<ProjectGuid>{0EC9CB86-CF40-41AD-96C2-A97BFACAD3D4}</ProjectGuid>
 			<MainSource>NppUISpy.dpr</MainSource>
 			<Base>True</Base>
-			<Config Condition="'$(Config)'==''">Release</Config>
+			<Config Condition="'$(Config)'==''">Debug</Config>
 			<TargetedPlatforms>3</TargetedPlatforms>
 			<AppType>Library</AppType>
 			<FrameworkType>VCL</FrameworkType>

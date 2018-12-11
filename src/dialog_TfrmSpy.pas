@@ -25,7 +25,7 @@ uses
   Winapi.Windows, Winapi.Messages, Winapi.CommCtrl,System.SysUtils, System.StrUtils,
   System.IOUtils, System.Math, System.Classes, System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ImgList, Vcl.Forms,
-  Vcl.Dialogs,
+  Vcl.Dialogs, Vcl.Menus, Vcl.Clipbrd,
 
   VirtualTrees,
 
@@ -40,6 +40,10 @@ type
 
     vstToolbarButtons: TVirtualStringTree;
     imlToolbarButtonIcons: TImageList;
+
+    mnuItemContextMenu: TPopupMenu;
+    mniCopyText: TMenuItem;
+    mniCopyCommandId: TMenuItem;
 
     btnQuit: TButton;
     btnReadStrings: TButton;
@@ -108,6 +112,8 @@ type
 
     // .........................................................................
 
+    procedure mniCopyItemData(Sender: TObject);
+
     procedure btnCollapseClick(Sender: TObject);
     procedure btnExpandClick(Sender: TObject);
 
@@ -165,13 +171,13 @@ type
 
     procedure   ListMenuItems(AMenu: HMENU = 0; AList: TMenuItemTreeInfoList = nil);
     procedure   FillMenuItemTree(ANode: PVirtualNode = nil; AList: TMenuItemTreeInfoList = nil);
-    procedure   HandleMenuItemClick();
+    procedure   HandleMenuItemLeftClick();
     procedure   GetMenuItemText(out Result: string; CmdId: cardinal; AList: TMenuItemTreeInfoList = nil);
     function    NormalizeMenuItemText(const AText: string): string;
 
     function    ListToolbarButtons(ReList: boolean): boolean;
     procedure   FillToolbarButtonTree();
-    procedure   HandleToolbarButtonClick();
+    procedure   HandleToolbarButtonLeftClick();
     function    GetToolbarButtonIdx(CmdId: cardinal): integer;
     function    FindNppToolbar(NppWnd: HWND): HWND;
 
@@ -287,7 +293,7 @@ begin
   FHitInfo := HitInfo;
 
   if ssLeft in FMouseButtonState then
-    HandleMenuItemClick();
+    HandleMenuItemLeftClick();
 end;
 
 
@@ -423,7 +429,7 @@ begin
   FHitInfo := HitInfo;
 
   if ssLeft in FMouseButtonState then
-    HandleToolbarButtonClick();
+    HandleToolbarButtonLeftClick();
 end;
 
 
@@ -538,6 +544,36 @@ end;
 // Other GUI elements
 // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+procedure TfrmSpy.mniCopyItemData(Sender: TObject);
+var
+  NodeDataMenuItem:      PMenuItemTreeData;
+  NodeDataToolbarButton: PToolbarButtonTreeData;
+
+begin
+  if vstMenuItems.Focused and (vstMenuItems.FocusedNode = FHitInfo.HitNode) then
+  begin
+    NodeDataMenuItem := PMenuItemTreeData(vstMenuItems.GetNodeData(FHitInfo.HitNode));
+
+    if Sender = mniCopyText then
+      Clipboard.AsText := NodeDataMenuItem.NppMenuItem.Text
+
+    else if Sender = mniCopyCommandId then
+      Clipboard.AsText := UIntToStr(NodeDataMenuItem.NppMenuItem.CmdId);
+  end
+
+  else if vstToolbarButtons.Focused and (vstToolbarButtons.FocusedNode = FHitInfo.HitNode) then
+  begin
+    NodeDataToolbarButton := PToolbarButtonTreeData(vstToolbarButtons.GetNodeData(FHitInfo.HitNode));
+
+    if Sender = mniCopyText then
+      Clipboard.AsText := NodeDataToolbarButton.NppToolbarButton.HintText
+
+    else if Sender = mniCopyCommandId then
+      Clipboard.AsText := UIntToStr(NodeDataToolbarButton.NppToolbarButton.CmdId);
+  end;
+end;
+
+
 procedure TfrmSpy.btnCollapseClick(Sender: TObject);
 begin
   vstMenuItems.FullCollapse();
@@ -637,6 +673,8 @@ begin
       SetLength(Buffer, CntChr);
 
       // Init retrieval structure
+      ZeroMemory(@MenuItemInfo, SizeOf(TMenuItemInfo));
+
       MenuItemInfo.cbSize     := SizeOf(TMenuItemInfo);
       MenuItemInfo.fMask      := MIIM_FTYPE or MIIM_STRING or MIIM_SUBMENU or MIIM_ID;
       MenuItemInfo.dwTypeData := PChar(Buffer);
@@ -666,7 +704,7 @@ begin
     with AList.Last do
     begin
       Text       := NormalizeMenuItemText(MenuItemText);
-      CmdId      := MenuItemInfo.wID;
+      CmdId      := IfThen(MenuItemInfo.hSubMenu = 0, MenuItemInfo.wID, 0);
       ImageIndex := GetToolbarButtonIdx(MenuItemInfo.wID);
     end;
 
@@ -718,7 +756,7 @@ begin
 end;
 
 
-procedure TfrmSpy.HandleMenuItemClick();
+procedure TfrmSpy.HandleMenuItemLeftClick();
 var
   NodeData: PMenuItemTreeData;
 
@@ -960,7 +998,7 @@ begin
 end;
 
 
-procedure TfrmSpy.HandleToolbarButtonClick();
+procedure TfrmSpy.HandleToolbarButtonLeftClick();
 var
   NodeData: PToolbarButtonTreeData;
 

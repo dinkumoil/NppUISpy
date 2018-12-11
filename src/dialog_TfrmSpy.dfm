@@ -43,6 +43,7 @@ object frmSpy: TfrmSpy
     IncrementalSearch = isAll
     Indent = 15
     ParentShowHint = False
+    PopupMenu = mnuItemContextMenu
     ShowHint = True
     TabOrder = 0
     TabStop = False
@@ -127,6 +128,7 @@ object frmSpy: TfrmSpy
     IncrementalSearch = isAll
     Indent = 0
     ParentShowHint = False
+    PopupMenu = mnuItemContextMenu
     ShowHint = True
     TabOrder = 3
     TabStop = False
@@ -191,5 +193,17 @@ object frmSpy: TfrmSpy
   object imlToolbarButtonIcons: TImageList
     Left = 64
     Top = 296
+  end
+  object mnuItemContextMenu: TPopupMenu
+    Left = 296
+    Top = 296
+    object mniCopyText: TMenuItem
+      Caption = 'Copy Text'
+      OnClick = mniCopyItemData
+    end
+    object mniCopyCommandId: TMenuItem
+      Caption = 'Copy Command Id'
+      OnClick = mniCopyItemData
+    end
   end
 end
