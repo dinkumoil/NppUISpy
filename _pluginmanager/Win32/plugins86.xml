@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
 	<plugin name="NppUISpy">
-		<unicodeVersion>1.0</unicodeVersion>
+		<unicodeVersion>1.0.1</unicodeVersion>
 		<description>With this plugin you can explore the main menu structure and the toolbar of Notepad++ to figure out which menu command ids are assigned to menu items and toolbar buttons.</description>
 		<author>Andreas Heim</author>
 		<homepage>https://sourceforge.net/projects/nppuispy/</homepage>
 		<sourceUrl>https://github.com/dinkumoil/NppUISpy</sourceUrl>
-		<latestUpdate>Initial release</latestUpdate>
+		<latestUpdate>Fixed: Sometimes Command Id column of menu entries tree shows invalid content.\nEnhanced: Both menu item tree and toolbar button list provide a context menu to copy the selected element's text or menu command id to clipboard.</latestUpdate>
 		<install>
 			<unicode>
-				<download>https://github.com/dinkumoil/NppUISpy/releases/download/v1.0/NppUISpy_v1.0_UNI.zip</download>
+				<download>https://github.com/dinkumoil/NppUISpy/releases/download/v1.0.1/NppUISpy_v1.0.1_UNI.zip</download>
 				<copy from="NppUISpy.dll" to="$PLUGINDIR$\" validate="true"/>
 				<copy from="doc\NppUISpy.txt" to="$PLUGINDIR$\doc"/>
 			</unicode>
