@@ -43,6 +43,10 @@ The following steps depend on the version of Notepad++ you use.
 
 # History
 
+v1.0.2 - December 2018
+- enhanced: Added toolbar icon.
+
+
 v1.0.1 - December 2018
 - fixed: Sometimes Command Id column of menu entries tree shows invalid content.
 - enhanced: Both menu item tree and toolbar button list provide a context menu to copy the selected element's text or menu command id to clipboard.

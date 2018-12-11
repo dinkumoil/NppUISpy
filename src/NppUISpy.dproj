@@ -36,7 +36,7 @@
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<PreBuildEvent><![CDATA[cmd /c ".\BuildScripts\PreBuildScript.cmd "$(PROJECTNAME)" $(CONFIG) $(PLATFORM)"
 $(PreBuildEvent)]]></PreBuildEvent>
-			<VerInfo_Release>1</VerInfo_Release>
+			<VerInfo_Release>2</VerInfo_Release>
 			<PostBuildEvent><![CDATA[cmd /c ".\BuildScripts\PostBuildScript.cmd "$(PROJECTNAME)" $(CONFIG) $(PLATFORM)"
 $(PostBuildEvent)]]></PostBuildEvent>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
@@ -52,7 +52,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
 			<DCC_E>false</DCC_E>
 			<DCC_F>false</DCC_F>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<VerInfo_Keys>CompanyName=;FileDescription=A plugin to explore the main menu and the toolbar of Notepad++ to figure out related menu command ids of menu items and toolbar buttons.;FileVersion=1.0.1.0;InternalName=;LegalCopyright=2018 by Andreas Heim;LegalTrademarks=;OriginalFilename=NppUISpy.dll;ProductName=NppUISpy;ProductVersion=1.0.1.0;Comments=A plugin for Notepad++</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=;FileDescription=A plugin to explore the main menu and the toolbar of Notepad++ to figure out related menu command ids of menu items and toolbar buttons.;FileVersion=1.0.2.0;InternalName=;LegalCopyright=2018 by Andreas Heim;LegalTrademarks=;OriginalFilename=NppUISpy.dll;ProductName=NppUISpy;ProductVersion=1.0.2.0;Comments=A plugin for Notepad++</VerInfo_Keys>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win64)'!=''">

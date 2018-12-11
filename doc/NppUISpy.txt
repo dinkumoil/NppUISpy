@@ -1,7 +1,7 @@
 
 ********************************************************************************
 *                                                                              *
-*          NppUISpy plugin v1.0.1 for Notepad++                                *
+*          NppUISpy plugin v1.0.2 for Notepad++                                *
 *          Builds for 32 and 64 bits Notepad++ installations available         *
 *                                                                              *
 *          Author: Andreas Heim, 2018                                          *
@@ -33,6 +33,11 @@ getting highlighted.
 ===========
   History
 ===========
+
+v1.0.2 - December 2018
+~~~~~~~~~~~~~~~~~~~~~~
+- enhanced: Added toolbar icon.
+
 
 v1.0.1 - December 2018
 ~~~~~~~~~~~~~~~~~~~~~~
