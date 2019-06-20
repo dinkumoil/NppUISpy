@@ -36,9 +36,14 @@ The following steps depend on the version of Notepad++ you use.
 2. Under "%UserProfile%\AppData\Local\Notepad++\plugins\NppUISpy" create a directory "doc" and copy the file "doc\NppUISpy.txt" to this directory.
 
 
-#### Notepad++ versions subsequent to v7.6
+#### Notepad++ versions v7.6.1 and v7.6.2
 1. Under "%ProgramData%\Notepad++\plugins" create a directory "NppUISpy" and copy the file "NppUISpy.dll" to this directory.
 2. Under "%ProgramData%\Notepad++\plugins\NppUISpy" create a directory "doc" and copy the file "doc\NppUISpy.txt" to this directory.
+
+
+#### Notepad++ version v7.6.3 and higher
+1. Under "<Npp-install-dir>\plugins" create a directory "NppUISpy" and copy the file "NppUISpy.dll" to this directory.
+2. Under "<Npp-install-dir>\plugins\NppUISpy" create a directory "doc" and copy the file "doc\NppUISpy.txt" to this directory.
 
 
 # History
