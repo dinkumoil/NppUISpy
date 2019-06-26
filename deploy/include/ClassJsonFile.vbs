@@ -351,8 +351,6 @@ Class clsJsonFile
   'Get formatted JSON data
   '----------------------------------------------------------------------------
   Public Function ToString(bolClean)
-    Dim strKey
-
     If dicJsonFile.Count > 0 Then
       ToString = PrintJsonDic(dicJsonFile, "", bolClean)
     Else

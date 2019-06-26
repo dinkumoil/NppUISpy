@@ -74,7 +74,7 @@ strPlatform = objWshShell.ExpandEnvironmentStrings("%Platform%")
 
 'Set target platform platform independent variables
 strRepositoryBaseUrl = "https://github.com/dinkumoil/" & strPluginName
-strSourceUrlKey      = "sourceUrl"
+strSourceUrlKey      = "homepage"
 
 'Set target platform specific variables
 If StrComp(strPlatform, "Win32", vbTextCompare) = 0 Then

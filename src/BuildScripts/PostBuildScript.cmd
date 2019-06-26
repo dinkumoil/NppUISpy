@@ -40,8 +40,8 @@ set "Platform=%~3"
 
 
 :Step1
-copy "..\doc\%PluginName%.txt" "..\_npp\Win32\plugins\doc" > NUL
-copy "..\doc\%PluginName%.txt" "..\_npp\Win64\plugins\doc" > NUL
+copy "..\doc\%PluginName%.txt" "..\_npp\Win32\plugins\%PluginName%\doc" > NUL
+copy "..\doc\%PluginName%.txt" "..\_npp\Win64\plugins\%PluginName%\doc" > NUL
 
 
 :Step2
