@@ -65,7 +65,7 @@ type
     FSCNotification:      PSCNotification;
     FFuncArray:           array of TFuncItem;
 
-    function    GetVarSizeStringValue(DirType: integer; MaxSize: cardinal = $0000FFFF): string;
+    function    GetVarSizeStringValue(DirType: cardinal; MaxSize: cardinal = $0000FFFF): string;
 
   protected
     // Internal utils
@@ -157,28 +157,28 @@ type
     function    GetCurrentViewIdx: integer; overload;
     function    GetCurrentViewIdx(ScHandle: HWND): integer; overload;
     function    GetCurrentDocIndex(AViewIdx: integer): integer;
-    function    GetCurrentLine: integer;
-    function    GetCurrentColumn: integer;
+    function    GetCurrentLine: NativeInt;
+    function    GetCurrentColumn: LongInt;
 
-    function    GetCurrentBufferId: integer;
-    function    GetBufferIdFromPos(AViewIdx, ADocIdx: integer): LRESULT;
-    function    GetPosFromBufferId(ABufferId: integer; out ADocIdx: integer): integer;
-    function    GetFullPathFromBufferId(ABufferId: integer): string;
+    function    GetCurrentBufferId: NativeInt;
+    function    GetBufferIdFromPos(AViewIdx, ADocIdx: integer): NativeInt;
+    function    GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: integer): integer;
+    function    GetFullPathFromBufferId(ABufferId: NativeInt): string;
     function    GetCurrentBufferDirty(AViewIdx: integer): boolean;
 
     function    GetOpenFilesCnt(CntType: integer): integer;
     function    GetOpenFiles(CntType: integer): TStringDynArray;
 
-    function    GetLineCount(AViewIdx: integer): integer;
-    function    GetLineFromPosition(AViewIdx, APosition: Integer): integer;
-    function    GetFirstVisibleLine(AViewIdx: integer): integer;
-    function    GetLinesOnScreen(AViewIdx: integer): integer;
+    function    GetLineCount(AViewIdx: integer): NativeInt;
+    function    GetLineFromPosition(AViewIdx: integer; APosition: NativeInt): NativeInt;
+    function    GetFirstVisibleLine(AViewIdx: integer): NativeInt;
+    function    GetLinesOnScreen(AViewIdx: integer): NativeInt;
 
-    procedure   GetFilePos(out FileName: string; out Line, Column: integer);
+    procedure   GetFilePos(out FileName: string; out Line: NativeInt; out Column: LongInt);
     function    GetCurrentWord: string;
 
     function    OpenFile(FileName: string; ReadOnly: boolean = false): boolean; overload;
-    function    OpenFile(FileName: string; Line: Integer; ReadOnly: boolean = false): boolean; overload;
+    function    OpenFile(FileName: string; Line: NativeInt; ReadOnly: boolean = false): boolean; overload;
     procedure   SwitchToFile(FileName: string);
     procedure   ReloadFile(FileName: string; Alert: boolean);
     procedure   ReloadCurrentFile(Alert: boolean);
@@ -436,7 +436,7 @@ begin
 end;
 
 
-function TNppPlugin.GetVarSizeStringValue(DirType: integer; MaxSize: cardinal = $0000FFFF): string;
+function TNppPlugin.GetVarSizeStringValue(DirType: cardinal; MaxSize: cardinal = $0000FFFF): string;
 var                                                         // NTFS limit for path length
   Buf:    nppString;
   BufLen: cardinal;
@@ -620,31 +620,31 @@ begin
 end;
 
 
-function TNppPlugin.GetCurrentLine: integer;
+function TNppPlugin.GetCurrentLine: NativeInt;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTLINE, WPARAM(0), LPARAM(0));
 end;
 
 
-function TNppPlugin.GetCurrentColumn: integer;
+function TNppPlugin.GetCurrentColumn: LongInt;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTCOLUMN, WPARAM(0), LPARAM(0));
 end;
 
 
-function TNppPlugin.GetCurrentBufferId: integer;
+function TNppPlugin.GetCurrentBufferId: NativeInt;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETCURRENTBUFFERID, WPARAM(0), LPARAM(0));
 end;
 
 
-function TNppPlugin.GetBufferIdFromPos(AViewIdx, ADocIdx: integer): LRESULT;
+function TNppPlugin.GetBufferIdFromPos(AViewIdx, ADocIdx: integer): NativeInt;
 begin
   Result := SendMessage(NppData.NppHandle, NPPM_GETBUFFERIDFROMPOS, WPARAM(ADocIdx), LPARAM(AViewIdx));
 end;
 
 
-function TNppPlugin.GetPosFromBufferId(ABufferId: integer; out ADocIdx: integer): integer;
+function TNppPlugin.GetPosFromBufferId(ABufferId: NativeInt; out ADocIdx: integer): integer;
 var
   Pos: LRESULT;
 
@@ -662,7 +662,7 @@ begin
 end;
 
 
-function TNppPlugin.GetFullPathFromBufferId(ABufferId: integer): string;
+function TNppPlugin.GetFullPathFromBufferId(ABufferId: NativeInt): string;
 var
   BufLen: LRESULT;
 
@@ -723,7 +723,7 @@ begin
 end;
 
 
-function TNppPlugin.GetLineCount(AViewIdx: integer): integer;
+function TNppPlugin.GetLineCount(AViewIdx: integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW: Result := SendMessage(NppData.ScintillaMainHandle, SCI_GETLINECOUNT, WPARAM(0), LPARAM(0));
@@ -733,7 +733,7 @@ begin
 end;
 
 
-function TNppPlugin.GetLineFromPosition(AViewIdx, APosition: Integer): integer;
+function TNppPlugin.GetLineFromPosition(AViewIdx: integer; APosition: NativeInt): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW: Result := SendMessage(NppData.ScintillaMainHandle, SCI_LINEFROMPOSITION, WPARAM(APosition), LPARAM(0));
@@ -743,7 +743,7 @@ begin
 end;
 
 
-function TNppPlugin.GetFirstVisibleLine(AViewIdx: integer): integer;
+function TNppPlugin.GetFirstVisibleLine(AViewIdx: integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW: Result := SendMessage(NppData.ScintillaMainHandle, SCI_GETFIRSTVISIBLELINE, WPARAM(0), LPARAM(0));
@@ -753,7 +753,7 @@ begin
 end;
 
 
-function TNppPlugin.GetLinesOnScreen(AViewIdx: integer): integer;
+function TNppPlugin.GetLinesOnScreen(AViewIdx: integer): NativeInt;
 begin
   case AViewIdx of
     MAIN_VIEW: Result := SendMessage(NppData.ScintillaMainHandle, SCI_LINESONSCREEN, WPARAM(0), LPARAM(0));
@@ -763,7 +763,7 @@ begin
 end;
 
 
-procedure TNppPlugin.GetFilePos(out FileName: string; out Line, Column: integer);
+procedure TNppPlugin.GetFilePos(out FileName: string; out Line: NativeInt; out Column: LongInt);
 begin
   FileName := GetFullCurrentPath();
   Line     := GetCurrentLine();
@@ -807,7 +807,7 @@ begin
 end;
 
 
-function TNppPlugin.OpenFile(FileName: string; Line: integer; ReadOnly: boolean = false): boolean;
+function TNppPlugin.OpenFile(FileName: string; Line: NativeInt; ReadOnly: boolean = false): boolean;
 var
   Ret: boolean;
 

@@ -30,25 +30,29 @@ uses
 
 
 type
-  uptr_t     = NativeUInt;
-  sptr_t     = NativeInt;
+  uptr_t        = NativeUInt;
+  sptr_t        = NativeInt;
 
-  TSurfaceID = pointer;
+  TSurfaceID    = pointer;
 
-  sciString  = WideString;
-  sciChar    = WChar;
-  sciPChar   = PWChar;
+  sciPosition   = NativeInt;
+  sciPositionU  = NativeUInt;
+  sciPositionCR = LongInt;
 
-  sciBString = AnsiString;
-  sciBChar   = AnsiChar;
-  sciPBChar  = PAnsiChar;
+  sciString     = WideString;
+  sciChar       = WChar;
+  sciPChar      = PWChar;
+
+  sciBString    = AnsiString;
+  sciBChar      = AnsiChar;
+  sciPBChar     = PAnsiChar;
 
 
   PCharacterRange = ^TCharacterRange;
 
   TCharacterRange = record
-    cpMin : Longint;
-    cpMax : Longint;
+    cpMin : sciPositionCR;
+    cpMax : sciPositionCR;
   end;
 
 
@@ -56,7 +60,7 @@ type
 
   TTextRange = record
     chrg      : TCharacterRange;
-    lpstrText : LPSTR;
+    lpstrText : PChar;
   end;
 
 
@@ -64,7 +68,7 @@ type
 
   TTextToFind = record
     chrg      : TCharacterRange;
-    lpstrText : LPCSTR;
+    lpstrText : PChar;
     chrgText  : TCharacterRange;
   end;
 
@@ -103,31 +107,33 @@ type
 
   TSCNotification = record
     nmhdr                : TNotifyHeader;
-    position             : Integer;  // SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK,
-                                     // SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND, SCN_CALLTIPCLICK,
-                                     // SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, SCN_HOTSPOTRELEASECLICK,
-                                     // SCN_INDICATORCLICK, SCN_INDICATORRELEASE,
-                                     // SCN_USERLISTSELECTION, SCN_AUTOCSELECTION
-    ch                   : Integer;  // SCN_CHARADDED, SCN_KEY
-    modifiers            : Integer;  // SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK,
-                                     // SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE
-    modificationType     : Integer;  // SCN_MODIFIED
-    text                 : PChar;    // SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED
-    length               : Integer;  // SCN_MODIFIED
-    linesAdded           : Integer;  // SCN_MODIFIED
-    message              : Integer;  // SCN_MACRORECORD
-    wParam               : uptr_t;   // SCN_MACRORECORD
-    lParam               : sptr_t;   // SCN_MACRORECORD
-    line                 : Integer;  // SCN_MODIFIED
-    foldLevelNow         : Integer;  // SCN_MODIFIED
-    foldLevelPrev        : Integer;  // SCN_MODIFIED
-    margin               : Integer;  // SCN_MARGINCLICK
-    listType             : Integer;  // SCN_USERLISTSELECTION
-    x                    : Integer;  // SCN_DWELLSTART, SCN_DWELLEND
-    y                    : Integer;  // SCN_DWELLSTART, SCN_DWELLEND
-    token                : Integer;  // SCN_MODIFIED with SC_MOD_CONTAINER
-    annotationLinesAdded : Integer;  // SCN_MODIFIED with SC_MOD_CHANGEANNOTATION
-    updated              : Integer;  // SCN_UPDATEUI
+    position             : sciPosition;  // SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK,
+                                         // SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND, SCN_CALLTIPCLICK,
+                                         // SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, SCN_HOTSPOTRELEASECLICK,
+                                         // SCN_INDICATORCLICK, SCN_INDICATORRELEASE,
+                                         // SCN_USERLISTSELECTION, SCN_AUTOCSELECTION
+    ch                   : Integer;      // SCN_CHARADDED, SCN_KEY, SCN_AUTOCCOMPLETED, SCN_AUTOCSELECTION,
+                                         // SCN_USERLISTSELECTION
+    modifiers            : Integer;      // SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK,
+                                         // SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE
+    modificationType     : Integer;      // SCN_MODIFIED
+    text                 : PChar;        // SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED
+    length               : sciPosition;  // SCN_MODIFIED
+    linesAdded           : sciPosition;  // SCN_MODIFIED
+    message              : Integer;      // SCN_MACRORECORD
+    wParam               : uptr_t;       // SCN_MACRORECORD
+    lParam               : sptr_t;       // SCN_MACRORECORD
+    line                 : sciPosition;  // SCN_MODIFIED
+    foldLevelNow         : Integer;      // SCN_MODIFIED
+    foldLevelPrev        : Integer;      // SCN_MODIFIED
+    margin               : Integer;      // SCN_MARGINCLICK
+    listType             : Integer;      // SCN_USERLISTSELECTION
+    x                    : Integer;      // SCN_DWELLSTART, SCN_DWELLEND
+    y                    : Integer;      // SCN_DWELLSTART, SCN_DWELLEND
+    token                : Integer;      // SCN_MODIFIED with SC_MOD_CONTAINER
+    annotationLinesAdded : sciPosition;  // SCN_MODIFIED with SC_MOD_CHANGEANNOTATION
+    updated              : Integer;      // SCN_UPDATEUI
+    listCompletionMethod : Integer;      // SCN_AUTOCSELECTION, SCN_AUTOCCOMPLETED, SCN_USERLISTSELECTION
   end;
 
 
@@ -164,8 +170,13 @@ const
   SCWS_INVISIBLE                                = 0;
   SCWS_VISIBLEALWAYS                            = 1;
   SCWS_VISIBLEAFTERINDENT                       = 2;
+  SCWS_VISIBLEONLYININDENT                      = 3;
   SCI_GETVIEWWS                                 = 2020;
   SCI_SETVIEWWS                                 = 2021;
+  SCTD_LONGARROW                                = 0;
+  SCTD_STRIKEOUT                                = 1;
+  SCI_GETTABDRAWMODE                            = 2698;
+  SCI_SETTABDRAWMODE                            = 2699;
   SCI_POSITIONFROMPOINT                         = 2022;
   SCI_POSITIONFROMPOINTCLOSE                    = 2023;
   SCI_GOTOLINE                                  = 2024;
@@ -257,6 +268,7 @@ const
   SC_MARGIN_FORE                                = 3;
   SC_MARGIN_TEXT                                = 4;
   SC_MARGIN_RTEXT                               = 5;
+  SC_MARGIN_COLOUR                              = 6;
   SCI_SETMARGINTYPEN                            = 2240;
   SCI_GETMARGINTYPEN                            = 2241;
   SCI_SETMARGINWIDTHN                           = 2242;
@@ -267,6 +279,10 @@ const
   SCI_GETMARGINSENSITIVEN                       = 2247;
   SCI_SETMARGINCURSORN                          = 2248;
   SCI_GETMARGINCURSORN                          = 2249;
+  SCI_SETMARGINBACKN                            = 2250;
+  SCI_GETMARGINBACKN                            = 2251;
+  SCI_SETMARGINS                                = 2252;
+  SCI_GETMARGINS                                = 2253;
   STYLE_DEFAULT                                 = 32;
   STYLE_LINENUMBER                              = 33;
   STYLE_BRACELIGHT                              = 34;
@@ -274,6 +290,7 @@ const
   STYLE_CONTROLCHAR                             = 36;
   STYLE_INDENTGUIDE                             = 37;
   STYLE_CALLTIP                                 = 38;
+  STYLE_FOLDDISPLAYTEXT                         = 39;
   STYLE_LASTPREDEFINED                          = 39;
   STYLE_MAX                                     = 255;
   SC_CHARSET_ANSI                               = 0;
@@ -287,6 +304,7 @@ const
   SC_CHARSET_MAC                                = 77;
   SC_CHARSET_OEM                                = 255;
   SC_CHARSET_RUSSIAN                            = 204;
+  SC_CHARSET_OEM866                             = 866;
   SC_CHARSET_CYRILLIC                           = 1251;
   SC_CHARSET_SHIFTJIS                           = 128;
   SC_CHARSET_SYMBOL                             = 2;
@@ -310,6 +328,7 @@ const
   SC_CASE_MIXED                                 = 0;
   SC_CASE_UPPER                                 = 1;
   SC_CASE_LOWER                                 = 2;
+  SC_CASE_CAMEL                                 = 3;
   SCI_STYLEGETFORE                              = 2481;
   SCI_STYLEGETBACK                              = 2482;
   SCI_STYLEGETBOLD                              = 2483;
@@ -370,6 +389,10 @@ const
   INDIC_COMPOSITIONTHIN                         = 15;
   INDIC_FULLBOX                                 = 16;
   INDIC_TEXTFORE                                = 17;
+  INDIC_POINT                                   = 18;
+  INDIC_POINTCHARACTER                          = 19;
+  INDIC_GRADIENT                                = 20;
+  INDIC_GRADIENTCENTRE                          = 21;
   INDIC_IME                                     = 32;
   INDIC_IME_MAX                                 = 35;
   INDIC_MAX                                     = 35;
@@ -397,8 +420,6 @@ const
   SCI_SETWHITESPACEBACK                         = 2085;
   SCI_SETWHITESPACESIZE                         = 2086;
   SCI_GETWHITESPACESIZE                         = 2087;
-  SCI_SETSTYLEBITS                              = 2090;
-  SCI_GETSTYLEBITS                              = 2091;
   SCI_SETLINESTATE                              = 2092;
   SCI_GETLINESTATE                              = 2093;
   SCI_GETMAXLINESTATE                           = 2094;
@@ -406,6 +427,8 @@ const
   SCI_SETCARETLINEVISIBLE                       = 2096;
   SCI_GETCARETLINEBACK                          = 2097;
   SCI_SETCARETLINEBACK                          = 2098;
+  SCI_GETCARETLINEFRAME                         = 2704;
+  SCI_SETCARETLINEFRAME                         = 2705;
   SCI_STYLESETCHANGEABLE                        = 2099;
   SCI_AUTOCSHOW                                 = 2100;
   SCI_AUTOCCANCEL                               = 2101;
@@ -445,6 +468,7 @@ const
   SCI_GETLINEINDENTPOSITION                     = 2128;
   SCI_GETCOLUMN                                 = 2129;
   SCI_COUNTCHARACTERS                           = 2633;
+  SCI_COUNTCODEUNITS                            = 2715;
   SCI_SETHSCROLLBAR                             = 2130;
   SCI_GETHSCROLLBAR                             = 2131;
   SC_IV_NONE                                    = 0;
@@ -472,6 +496,7 @@ const
   SC_PRINT_BLACKONWHITE                         = 2;
   SC_PRINT_COLOURONWHITE                        = 3;
   SC_PRINT_COLOURONWHITEDEFAULTBG               = 4;
+  SC_PRINT_SCREENCOLOURS                        = 5;
   SCI_SETPRINTCOLOURMODE                        = 2148;
   SCI_GETPRINTCOLOURMODE                        = 2149;
   SCFIND_WHOLEWORD                              = $2;
@@ -527,6 +552,8 @@ const
   SCI_GETTARGETEND                              = 2193;
   SCI_SETTARGETRANGE                            = 2686;
   SCI_GETTARGETTEXT                             = 2687;
+  SCI_TARGETFROMSELECTION                       = 2287;
+  SCI_TARGETWHOLEDOCUMENT                       = 2690;
   SCI_REPLACETARGET                             = 2194;
   SCI_REPLACETARGETRE                           = 2195;
   SCI_SEARCHINTARGET                            = 2197;
@@ -561,6 +588,11 @@ const
   SCI_SETFOLDEXPANDED                           = 2229;
   SCI_GETFOLDEXPANDED                           = 2230;
   SCI_TOGGLEFOLD                                = 2231;
+  SCI_TOGGLEFOLDSHOWTEXT                        = 2700;
+  SC_FOLDDISPLAYTEXT_HIDDEN                     = 0;
+  SC_FOLDDISPLAYTEXT_STANDARD                   = 1;
+  SC_FOLDDISPLAYTEXT_BOXED                      = 2;
+  SCI_FOLDDISPLAYTEXTSETSTYLE                   = 2701;
   SC_FOLDACTION_CONTRACT                        = 0;
   SC_FOLDACTION_EXPAND                          = 1;
   SC_FOLDACTION_TOGGLE                          = 2;
@@ -591,6 +623,13 @@ const
   SCI_GETMOUSEDWELLTIME                         = 2265;
   SCI_WORDSTARTPOSITION                         = 2266;
   SCI_WORDENDPOSITION                           = 2267;
+  SCI_ISRANGEWORD                               = 2691;
+  SC_IDLESTYLING_NONE                           = 0;
+  SC_IDLESTYLING_TOVISIBLE                      = 1;
+  SC_IDLESTYLING_AFTERVISIBLE                   = 2;
+  SC_IDLESTYLING_ALL                            = 3;
+  SCI_SETIDLESTYLING                            = 2692;
+  SCI_GETIDLESTYLING                            = 2693;
   SC_WRAP_NONE                                  = 0;
   SC_WRAP_WORD                                  = 1;
   SC_WRAP_CHAR                                  = 2;
@@ -613,6 +652,7 @@ const
   SC_WRAPINDENT_FIXED                           = 0;
   SC_WRAPINDENT_SAME                            = 1;
   SC_WRAPINDENT_INDENT                          = 2;
+  SC_WRAPINDENT_DEEPINDENT                      = 3;
   SCI_SETWRAPINDENTMODE                         = 2472;
   SCI_GETWRAPINDENTMODE                         = 2473;
   SC_CACHE_NONE                                 = 0;
@@ -632,8 +672,6 @@ const
   SCI_SETVSCROLLBAR                             = 2280;
   SCI_GETVSCROLLBAR                             = 2281;
   SCI_APPENDTEXT                                = 2282;
-  SCI_GETTWOPHASEDRAW                           = 2283;
-  SCI_SETTWOPHASEDRAW                           = 2284;
   SC_PHASES_ONE                                 = 0;
   SC_PHASES_TWO                                 = 1;
   SC_PHASES_MULTIPLE                            = 2;
@@ -652,11 +690,14 @@ const
   SCI_SETMULTIPASTE                             = 2614;
   SCI_GETMULTIPASTE                             = 2615;
   SCI_GETTAG                                    = 2616;
-  SCI_TARGETFROMSELECTION                       = 2287;
   SCI_LINESJOIN                                 = 2288;
   SCI_LINESSPLIT                                = 2289;
   SCI_SETFOLDMARGINCOLOUR                       = 2290;
   SCI_SETFOLDMARGINHICOLOUR                     = 2291;
+  SC_ACCESSIBILITY_DISABLED                     = 0;
+  SC_ACCESSIBILITY_ENABLED                      = 1;
+  SCI_SETACCESSIBILITY                          = 2702;
+  SCI_GETACCESSIBILITY                          = 2703;
   SCI_LINEDOWN                                  = 2300;
   SCI_LINEDOWNEXTEND                            = 2301;
   SCI_LINEUP                                    = 2302;
@@ -698,6 +739,7 @@ const
   SCI_LINECUT                                   = 2337;
   SCI_LINEDELETE                                = 2338;
   SCI_LINETRANSPOSE                             = 2339;
+  SCI_LINEREVERSE                               = 2354;
   SCI_LINEDUPLICATE                             = 2404;
   SCI_LOWERCASE                                 = 2340;
   SCI_UPPERCASE                                 = 2341;
@@ -730,24 +772,36 @@ const
   EDGE_NONE                                     = 0;
   EDGE_LINE                                     = 1;
   EDGE_BACKGROUND                               = 2;
+  EDGE_MULTILINE                                = 3;
   SCI_GETEDGECOLUMN                             = 2360;
   SCI_SETEDGECOLUMN                             = 2361;
   SCI_GETEDGEMODE                               = 2362;
   SCI_SETEDGEMODE                               = 2363;
   SCI_GETEDGECOLOUR                             = 2364;
   SCI_SETEDGECOLOUR                             = 2365;
+  SCI_MULTIEDGEADDLINE                          = 2694;
+  SCI_MULTIEDGECLEARALL                         = 2695;
   SCI_SEARCHANCHOR                              = 2366;
   SCI_SEARCHNEXT                                = 2367;
   SCI_SEARCHPREV                                = 2368;
   SCI_LINESONSCREEN                             = 2370;
+  SC_POPUP_NEVER                                = 0;
+  SC_POPUP_ALL                                  = 1;
+  SC_POPUP_TEXT                                 = 2;
   SCI_USEPOPUP                                  = 2371;
   SCI_SELECTIONISRECTANGLE                      = 2372;
   SCI_SETZOOM                                   = 2373;
   SCI_GETZOOM                                   = 2374;
+  SC_DOCUMENTOPTION_DEFAULT                     = 0;
+  SC_DOCUMENTOPTION_STYLES_NONE                 = $1;
+  SC_DOCUMENTOPTION_TEXT_LARGE                  = $100;
   SCI_CREATEDOCUMENT                            = 2375;
   SCI_ADDREFDOCUMENT                            = 2376;
   SCI_RELEASEDOCUMENT                           = 2377;
+  SCI_GETDOCUMENTOPTIONS                        = 2379;
   SCI_GETMODEVENTMASK                           = 2378;
+  SCI_SETCOMMANDEVENTS                          = 2717;
+  SCI_GETCOMMANDEVENTS                          = 2718;
   SCI_SETFOCUS                                  = 2380;
   SCI_GETFOCUS                                  = 2381;
   SC_STATUS_OK                                  = 0;
@@ -759,6 +813,8 @@ const
   SCI_GETSTATUS                                 = 2383;
   SCI_SETMOUSEDOWNCAPTURES                      = 2384;
   SCI_GETMOUSEDOWNCAPTURES                      = 2385;
+  SCI_SETMOUSEWHEELCAPTURES                     = 2696;
+  SCI_GETMOUSEWHEELCAPTURES                     = 2697;
   SC_CURSORNORMAL                               = -1;
   SC_CURSORARROW                                = 2;
   SC_CURSORWAIT                                 = 4;
@@ -803,6 +859,7 @@ const
   SCI_POSITIONBEFORE                            = 2417;
   SCI_POSITIONAFTER                             = 2418;
   SCI_POSITIONRELATIVE                          = 2670;
+  SCI_POSITIONRELATIVECODEUNITS                 = 2716;
   SCI_COPYRANGE                                 = 2419;
   SCI_COPYTEXT                                  = 2420;
   SC_SEL_STREAM                                 = 0;
@@ -811,6 +868,7 @@ const
   SC_SEL_THIN                                   = 3;
   SCI_SETSELECTIONMODE                          = 2422;
   SCI_GETSELECTIONMODE                          = 2423;
+  SCI_GETMOVEEXTENDSSELECTION                   = 2706;
   SCI_GETLINESELSTARTPOSITION                   = 2424;
   SCI_GETLINESELENDPOSITION                     = 2425;
   SCI_LINEDOWNRECTEXTEND                        = 2426;
@@ -872,6 +930,8 @@ const
   CARETSTYLE_INVISIBLE                          = 0;
   CARETSTYLE_LINE                               = 1;
   CARETSTYLE_BLOCK                              = 2;
+  CARETSTYLE_OVERSTRIKE_BAR                     = 0;
+  CARETSTYLE_OVERSTRIKE_BLOCK                   = 16;
   SCI_SETCARETSTYLE                             = 2512;
   SCI_GETCARETSTYLE                             = 2513;
   SCI_SETINDICATORCURRENT                       = 2500;
@@ -975,6 +1035,7 @@ const
   SCVS_NONE                                     = 0;
   SCVS_RECTANGULARSELECTION                     = 1;
   SCVS_USERACCESSIBLE                           = 2;
+  SCVS_NOWRAPLINESTART                          = 4;
   SCI_SETVIRTUALSPACEOPTIONS                    = 2596;
   SCI_GETVIRTUALSPACEOPTIONS                    = 2597;
   SCI_SETRECTANGULARSELECTIONMODIFIER           = 2598;
@@ -987,6 +1048,8 @@ const
   SCI_GETADDITIONALCARETFORE                    = 2605;
   SCI_ROTATESELECTION                           = 2606;
   SCI_SWAPMAINANCHORCARET                       = 2607;
+  SCI_MULTIPLESELECTADDNEXT                     = 2688;
+  SCI_MULTIPLESELECTADDEACH                     = 2689;
   SCI_CHANGELEXERSTATE                          = 2617;
   SCI_CONTRACTEDFOLDNEXT                        = 2618;
   SCI_VERTICALCENTRECARET                       = 2619;
@@ -1029,7 +1092,6 @@ const
   SCI_GETLEXER                                  = 4002;
   SCI_COLOURISE                                 = 4003;
   SCI_SETPROPERTY                               = 4004;
-  // KEYWORDSET_MAX 8;
   KEYWORDSET_MAX                                = 30;
   SCI_SETKEYWORDS                               = 4005;
   SCI_SETLEXERLANGUAGE                          = 4006;
@@ -1037,7 +1099,6 @@ const
   SCI_GETPROPERTY                               = 4008;
   SCI_GETPROPERTYEXPANDED                       = 4009;
   SCI_GETPROPERTYINT                            = 4010;
-  SCI_GETSTYLEBITSNEEDED                        = 4011;
   SCI_GETLEXERLANGUAGE                          = 4012;
   SCI_PRIVATELEXERCALL                          = 4013;
   SCI_PROPERTYNAMES                             = 4014;
@@ -1057,6 +1118,10 @@ const
   SCI_SETIDENTIFIERS                            = 4024;
   SCI_DISTANCETOSECONDARYSTYLES                 = 4025;
   SCI_GETSUBSTYLEBASES                          = 4026;
+  SCI_GETNAMEDSTYLES                            = 4029;
+  SCI_NAMEOFSTYLE                               = 4030;
+  SCI_TAGSOFSTYLE                               = 4031;
+  SCI_DESCRIPTIONOFSTYLE                        = 4032;
   SC_MOD_INSERTTEXT                             = $1;
   SC_MOD_DELETETEXT                             = $2;
   SC_MOD_CHANGESTYLE                            = $4;
@@ -1114,6 +1179,11 @@ const
   SCMOD_ALT                                     = 4;
   SCMOD_SUPER                                   = 8;
   SCMOD_META                                    = 16;
+  SC_AC_FILLUP                                  = 1;
+  SC_AC_DOUBLECLICK                             = 2;
+  SC_AC_TAB                                     = 3;
+  SC_AC_NEWLINE                                 = 4;
+  SC_AC_COMMAND                                 = 5;
   SCN_STYLENEEDED                               = 2000;
   SCN_CHARADDED                                 = 2001;
   SCN_SAVEPOINTREACHED                          = 2002;
@@ -1143,9 +1213,25 @@ const
   SCN_HOTSPOTRELEASECLICK                       = 2027;
   SCN_FOCUSIN                                   = 2028;
   SCN_FOCUSOUT                                  = 2029;
+  SCN_AUTOCCOMPLETED                            = 2030;
+  SCN_MARGINRIGHTCLICK                          = 2031;
+  SCN_AUTOCSELECTIONCHANGE                      = 2032;
+  SC_BIDIRECTIONAL_DISABLED                     = 0;
+  SC_BIDIRECTIONAL_L2R                          = 1;
+  SC_BIDIRECTIONAL_R2L                          = 2;
+  SCI_GETBIDIRECTIONAL                          = 2708;
+  SCI_SETBIDIRECTIONAL                          = 2709;
+  SC_LINECHARACTERINDEX_NONE                    = 0;
+  SC_LINECHARACTERINDEX_UTF32                   = 1;
+  SC_LINECHARACTERINDEX_UTF16                   = 2;
+  SCI_GETLINECHARACTERINDEX                     = 2710;
+  SCI_ALLOCATELINECHARACTERINDEX                = 2711;
+  SCI_RELEASELINECHARACTERINDEX                 = 2712;
+  SCI_LINEFROMINDEXPOSITION                     = 2713;
+  SCI_INDEXPOSITIONFROMLINE                     = 2714;
   SCN_SCROLLED                                  = 2080;
   SCN_FOLDINGSTATECHANGED                       = 2081;
-  //--Const
+    //--Const
 
 
 
