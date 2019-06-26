@@ -2,7 +2,7 @@
 
 Builds for 32 and 64 bits Notepad++ installations available
 
-Author: Andreas Heim, 2018
+Author: Andreas Heim, 2018 - 2019
 
 
 # Features
@@ -47,6 +47,10 @@ The following steps depend on the version of Notepad++ you use.
 
 
 # History
+
+v1.0.4 - June 2019
+- changed:  Adapted to new Scintilla API v4.1.4 in Notepad++ v7.7
+
 
 v1.0.3 - December 2018
 - enhanced: The context menu of selected elements provides the ability to copy the element's icon.

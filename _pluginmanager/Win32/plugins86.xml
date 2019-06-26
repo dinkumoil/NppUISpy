@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
 	<plugin name="NppUISpy">
-		<unicodeVersion>1.0.3</unicodeVersion>
+		<unicodeVersion>1.0.4</unicodeVersion>
 		<description>With this plugin you can explore the main menu structure and the toolbar of Notepad++ to figure out which menu command ids are assigned to menu items and toolbar buttons.</description>
 		<author>Andreas Heim</author>
-		<homepage>https://sourceforge.net/projects/nppuispy/</homepage>
-		<sourceUrl>https://github.com/dinkumoil/NppUISpy</sourceUrl>
-		<latestUpdate>Enhanced: The context menu of selected elements provides the ability to copy the element's icon.</latestUpdate>
+		<homepage>https://github.com/dinkumoil/NppUISpy</homepage>
+		<latestUpdate>Adapted to new Scintilla API v4.1.4 in Notepad++ v7.7</latestUpdate>
 		<install>
 			<unicode>
-				<download>https://github.com/dinkumoil/NppUISpy/releases/download/v1.0.3/NppUISpy_v1.0.3_UNI.zip</download>
+				<download>https://github.com/dinkumoil/NppUISpy/releases/download/v1.0.4/NppUISpy_v1.0.4_UNI.zip</download>
 				<copy from="NppUISpy.dll" to="$PLUGINDIR$\" validate="true"/>
 				<copy from="doc\NppUISpy.txt" to="$PLUGINDIR$\doc"/>
 			</unicode>

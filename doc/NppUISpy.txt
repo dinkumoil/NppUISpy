@@ -1,10 +1,10 @@
 
 ********************************************************************************
 *                                                                              *
-*          NppUISpy plugin v1.0.3 for Notepad++                                *
+*          NppUISpy plugin v1.0.4 for Notepad++                                *
 *          Builds for 32 and 64 bits Notepad++ installations available         *
 *                                                                              *
-*          Author: Andreas Heim, 2018                                          *
+*          Author: Andreas Heim, 2018 - 2019                                   *
 *                                                                              *
 ********************************************************************************
 
@@ -33,6 +33,11 @@ getting highlighted.
 ===========
   History
 ===========
+
+v1.0.4 - June 2019
+~~~~~~~~~~~~~~~~~~
+- changed:  Adapted to new Scintilla API v4.1.4 in Notepad++ v7.7
+
 
 v1.0.3 - December 2018
 ~~~~~~~~~~~~~~~~~~~~~~
