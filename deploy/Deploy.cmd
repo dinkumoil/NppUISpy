@@ -48,8 +48,8 @@ pushd "%~dp0"
 
 ::Set deploy tools paths
 set "SevenZip=%DeployBasePath%\bin\7za.exe"
-set "MD5Sums=%DeployBasePath%\bin\md5sums.exe"
 set "SHA256Sum=%DeployBasePath%\bin\sha256sum.exe"
+
 
 ::Set input files paths
 set "DocDir=%ProjectPath%\doc"
@@ -57,11 +57,6 @@ set "DocFile=%PluginName%.txt"
 
 set "DllDir=%ProjectPath%\_bin\%Platform%"
 set "DllFile=%PluginName%.dll"
-
-set "Plugins86XmlFile=%ProjectPath%\_pluginmanager\Win32\plugins86.xml"
-
-set "Plugins64XmlFile=%ProjectPath%\_pluginmanager\Win64\plugins\plugins64.xml"
-set "ValidateJsonFile=%ProjectPath%\_pluginmanager\Win64\plugins\validate.json"
 
 set "Plugins86JsonFile=%ProjectPath%\_pluginadmin\src\pl.x86.json"
 set "Plugins64JsonFile=%ProjectPath%\_pluginadmin\src\pl.x64.json"
@@ -81,9 +76,6 @@ if /i "%Platform%" equ "Win32" (
   set "ZipFile=%PluginName%_v%FileVersion%_x64.zip"
 )
 
-set "MD5OutDir=%DllDir%"
-set "MD5File=%DllFile%.md5"
-
 set "SHA256OutDir=%ZipOutDir%"
 set "SHA256File=%ZipFile%.sha256"
 
@@ -93,29 +85,13 @@ call CreateZip.cmd & echo.
 if %ERRORLEVEL% neq 0 goto :Quit
 
 
-::Create MD5 hash file of plugin's DLL file
-call CreateMD5Hash.cmd & echo.
-if %ERRORLEVEL% neq 0 goto :Quit
-
-
 ::Create SHA-256 hash file of plugin's ZIP file
 call CreateSHA256Hash.cmd & echo.
 if %ERRORLEVEL% neq 0 goto :Quit
 
 
-::If target platform is x86 patch plugins86.xml
-::If target platform is x64 patch plugins64.xml and validate.json files
-cscript /nologo PatchPluginsXml.vbs "%FileVersion%" & echo.
-if %ERRORLEVEL% neq 0 goto :Quit
-
 for /f "usebackq tokens=1 delims=* " %%a in ("%SHA256OutDir%\%SHA256File%") do set "SHA256Hash=%%a"
 cscript /nologo PatchPluginsJson.vbs "%FileVersion%" "%SHA256Hash%" & echo.
-if %ERRORLEVEL% neq 0 goto :Quit
-
-if /i "%Platform%" equ "Win32" goto :Quit
-
-for /f "usebackq tokens=1 delims=* " %%a in ("%MD5OutDir%\%MD5File%") do set "MD5Hash=%%a"
-cscript /nologo PatchValidateJson.vbs "%MD5Hash%" & echo.
 if %ERRORLEVEL% neq 0 goto :Quit
 
 

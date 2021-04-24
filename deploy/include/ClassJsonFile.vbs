@@ -189,7 +189,8 @@ Class clsJsonFile
                                    Array("n",           Array(intStateReadString)), _
                                    Array("r",           Array(intStateReadString)), _
                                    Array("t",           Array(intStateReadString)), _
-                                   Array("u",           Array(intStateReadString))  _
+                                   Array("u",           Array(intStateReadString)), _
+                                   Array(".",           Array(intStateReadString))  _
                                   )
 
     arrStateStringRead     = Array("", _
@@ -457,22 +458,22 @@ Class clsJsonFile
 
               Select Case intNewState
                 Case intStateReadKey
-                  If intNewState = intState Then
+                  If intState = intNewState Then
                     strItem = strItem & strChar
                   End If
 
                 Case intStateReadConst, _
                      intStateReadNumber
-                  strItem  = strItem & strChar
+                  strItem = strItem & strChar
 
                 Case intStateReadString
-                  If intNewState = intState Or _
-                     intState    = intStateReadEscapeChar Then
+                  If intState = intNewState Or _
+                     intState = intStateReadEscapeChar Then
                     strItem = strItem & strChar
                   End If
 
                 Case intStateReadEscapeChar
-                  strItem  = strItem & strChar
+                  strItem = strItem & strChar
 
                 Case intStateReadArray
                   Call StackPush(strKey, varCurDataStore)
@@ -586,7 +587,7 @@ Class clsJsonFile
 
     If IsObject(varDataStore) Then
       If Not varDataStore.Exists(varKey) Then
-        If intDebugLevel > 0 then
+        If intDebugLevel > 0 Then
           If IsObject(varValue) Then
             WScript.Echo "Add to Object: " & varKey & "=Object" & vbNewLine
           ElseIf IsArray(varValue) Then
@@ -603,7 +604,7 @@ Class clsJsonFile
     ElseIf IsArray(varDataStore) Then
       ReDim Preserve varDataStore(UBound(varDataStore) + 1)
 
-      If intDebugLevel > 0 then
+      If intDebugLevel > 0 Then
         If IsObject(varValue) Then
           WScript.Echo "Add to Array[" & UBound(varDataStore) & "]: Object" & vbNewLine
         ElseIf IsArray(varValue) Then
