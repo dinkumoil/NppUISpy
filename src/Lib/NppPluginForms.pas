@@ -34,6 +34,8 @@ uses
 type
   TNppPluginForm = class(TForm)
   protected
+    procedure CreateParams(var Params: TCreateParams); override;
+
     procedure DoCreate; override;
     procedure DoClose(var Action: TCloseAction); override;
 
@@ -130,6 +132,16 @@ end;
 // -----------------------------------------------------------------------------
 // Overridden methods
 // -----------------------------------------------------------------------------
+
+// Remove WS_CHILD window style to allow the Notepad++ UI to get visible
+// when the task bar icon of Notepad++ has been clicked
+procedure TNppPluginForm.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+
+  Params.Style := Params.Style and (not WS_CHILD);
+end;
+
 
 // Ensure correct placement of plugin dialogs
 procedure TNppPluginForm.DoCreate;
