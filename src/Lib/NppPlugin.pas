@@ -136,6 +136,9 @@ type
     function    GetBuildNumber: integer;
     function    GetCopyRight: string;
 
+    function    GetNppVersion(var MajorVersion, MinorVersion: integer): integer;
+    function    IsNppMinVersion(AMajorVersion, AMinorVersion: integer): boolean;
+
     function    GetNppDir: string;
     function    GetPluginDir: string;
     function    GetPluginConfigDir: string;
@@ -459,6 +462,34 @@ begin
   until false;
 
   SetString(Result, nppPChar(Buf), StrLen(nppPChar(Buf)));
+end;
+
+
+function TNppPlugin.GetNppVersion(var MajorVersion, MinorVersion: integer): integer;
+var
+  Version: LRESULT;
+
+begin
+  Version := SendMessage(NppData.NppHandle, NPPM_GETNPPVERSION, WPARAM(0), LPARAM(0));
+
+  MajorVersion := HiWord(Version);
+  MinorVersion := LoWord(Version);
+
+  if MinorVersion < 10 then
+    MinorVersion := MinorVersion * 10;
+
+  Result := MajorVersion;
+end;
+
+
+function TNppPlugin.IsNppMinVersion(AMajorVersion, AMinorVersion: integer): boolean;
+var
+  MajorVersion: integer;
+  MinorVersion: integer;
+
+begin
+  GetNppVersion(MajorVersion, MinorVersion);
+  Result := (MajorVersion >= AMajorVersion) and (MinorVersion >= AMinorVersion);
 end;
 
 
