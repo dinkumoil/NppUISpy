@@ -1,6 +1,6 @@
 '==============================================================================
 '
-' Class for parsing JSON files
+' Clazz for parsing JSON files
 '
 ' Author: Andreas Heim
 ' Date:   30.06.2016

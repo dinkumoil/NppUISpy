@@ -142,6 +142,10 @@ Sub ConvertUTF8BOMEOLFormat(ByRef strFile, ByRef strEOLFormat)
     End If
   Loop
   
+  If strLine <> "" Then
+    objOutStream.WriteText strLine, 1  'adWriteLine
+  End If
+
   With objInStream
     .Close
   End With
