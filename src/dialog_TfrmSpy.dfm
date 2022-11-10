@@ -1,21 +1,20 @@
 object frmSpy: TfrmSpy
   Left = 525
   Top = 410
+  BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   ClientHeight = 344
   ClientWidth = 785
   Color = clBtnFace
   Constraints.MinHeight = 380
   Constraints.MinWidth = 801
-  DefaultMonitor = dmDesktop
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  PopupMode = pmExplicit
-  Position = poDefault
+  PopupMode = pmAuto
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow

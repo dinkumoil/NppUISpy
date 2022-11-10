@@ -13,8 +13,7 @@ object frmAbout: TfrmAbout
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  PopupMode = pmExplicit
-  Position = poDefault
+  PopupMode = pmAuto
   OnCreate = FormCreate
   DesignSize = (
     267

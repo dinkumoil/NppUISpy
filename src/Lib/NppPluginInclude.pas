@@ -46,7 +46,7 @@ begin
 end;
 
 
-function messageProc(msg: Integer; _wParam: WPARAM; _lParam: LPARAM): LRESULT; cdecl; export;
+function messageProc(msg: Cardinal; _wParam: WPARAM; _lParam: LPARAM): LRESULT; cdecl; export;
 var
   xmsg: TMessage;
 
