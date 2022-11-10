@@ -2,7 +2,7 @@
 
 Builds for 32 and 64 bits Notepad++ installations available
 
-Author: Andreas Heim, 2018 - 2019
+Author: Andreas Heim, 2018 - 2022
 
 
 # Features
@@ -47,6 +47,16 @@ The following steps depend on the version of Notepad++ you use.
 
 
 # History
+
+v1.1 - November 2022
+- fixed:    When plugin's dialog boxes are on screen but hidden by another application's window which has input focus, it is not possible to return to Notepad++ by clicking its taskbar icon.
+- fixed:    Wrong implementation of Notepad++ version comparison.
+- enhanced: Added support for Dark Mode icons.
+- enhanced: Added new Notepad++ message constants from v7.9.2 up to v8.4.7
+- enhanced: Added new Notepad++ menu command ids from v7.9.6 up to v8.4.7
+- enhanced: Added new Scintilla constants from v4.4.6 up to v5.3.1
+- enhanced: Adapted to new Scintilla v5.3.1 API of Notepad++ v8.4.7
+
 
 v1.0.4 - June 2019
 - changed:  Adapted to new Scintilla API v4.1.4 in Notepad++ v7.7

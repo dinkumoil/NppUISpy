@@ -34,7 +34,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<VerInfo_Release>4</VerInfo_Release>
+			<VerInfo_MinorVer>1</VerInfo_MinorVer>
 			<PreBuildEvent><![CDATA[cmd /c ".\BuildScripts\PreBuildScript.cmd "$(PROJECTNAME)" $(CONFIG) $(PLATFORM)"
 $(PreBuildEvent)]]></PreBuildEvent>
 			<PostBuildEvent><![CDATA[cmd /c ".\BuildScripts\PostBuildScript.cmd "$(PROJECTNAME)" $(CONFIG) $(PLATFORM)"
@@ -52,7 +52,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
 			<DCC_E>false</DCC_E>
 			<DCC_F>false</DCC_F>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<VerInfo_Keys>CompanyName=;FileDescription=A plugin to explore the main menu and the toolbar of Notepad++ to figure out related menu command ids of menu items and toolbar buttons.;FileVersion=1.0.4.0;InternalName=;LegalCopyright=2018 by Andreas Heim;LegalTrademarks=;OriginalFilename=NppUISpy.dll;ProductName=NppUISpy;ProductVersion=1.0.4.0;Comments=A plugin for Notepad++</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=;FileDescription=A plugin to explore the main menu and the toolbar of Notepad++ to figure out related menu command ids of menu items and toolbar buttons.;FileVersion=1.1.0.0;InternalName=;LegalCopyright=2018 - 2022 by Andreas Heim;LegalTrademarks=;OriginalFilename=NppUISpy.dll;ProductName=NppUISpy;ProductVersion=1.1.0.0;Comments=A plugin for Notepad++</VerInfo_Keys>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -165,71 +165,51 @@ $(PostBuildEvent)]]></PostBuildEvent>
 		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
 		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
 		<PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
-			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PreBuildEvent>
+			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PreBuildEvent>
 			<PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
 			<PreLinkEvent/>
 			<PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PostBuildEvent>
+			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PostBuildEvent>
 			<PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='OSX32'">
-			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PreBuildEvent>
+			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PreBuildEvent>
 			<PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
 			<PreLinkEvent/>
 			<PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PostBuildEvent>
+			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PostBuildEvent>
 			<PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
-			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PreBuildEvent>
+			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PreBuildEvent>
 			<PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
 			<PreLinkEvent/>
 			<PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PostBuildEvent>
+			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PostBuildEvent>
 			<PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win64'">
-			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PreBuildEvent>
+			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PreBuildEvent>
 			<PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
 			<PreLinkEvent/>
 			<PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PostBuildEvent>
+			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PostBuildEvent>
 			<PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='OSX32'">
-			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PreBuildEvent>
+			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PreBuildEvent>
 			<PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
 			<PreLinkEvent/>
 			<PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PostBuildEvent>
+			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PostBuildEvent>
 			<PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win32'">
-			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PreBuildEvent>
+			<PreBuildEvent>cmd /c &quot;.\BuildScripts\PreBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PreBuildEvent>
 			<PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
 			<PreLinkEvent/>
 			<PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;
-</PostBuildEvent>
+			<PostBuildEvent>cmd /c &quot;.\BuildScripts\PostBuildScript.cmd &quot;$(PROJECTNAME)&quot; $(CONFIG) $(PLATFORM)&quot;</PostBuildEvent>
 			<PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
 		</PropertyGroup>
 	</Project>
-
-<!-- EurekaLog First Line
-[Exception Log]
-EurekaLog Version=7007
-Activate=0
-DeleteMapAfterCompile=0
-Encrypt Password=""
-EurekaLog Last Line -->
