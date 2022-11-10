@@ -36,9 +36,11 @@ type
   // Plugin class
   TNppUISpyPlugin = class(TNppPlugin)
   private
-    FMenuItemIdxSpy:   integer;
-    FMenuItemIdxAbout: integer;
-    FToolbarBmp:       TBitmap;
+    FMenuItemIdxSpy:         integer;
+    FMenuItemIdxAbout:       integer;
+    FToolbarIconStdSmall:    TBitmap;
+    FToolbarIconFluentLight: TIcon;
+    FToolbarIconFluentDark:  TIcon;
 
   protected
     // Handler for certain Notepad++ events
@@ -67,12 +69,14 @@ implementation
 
 const
   // Plugin name
-  TXT_PLUGIN_NAME:    string = 'NppUISpy';
+  TXT_PLUGIN_NAME:              string = 'NppUISpy';
 
-  TXT_MENUITEM_SPY:   string = 'Spy!';
-  TXT_MENUITEM_ABOUT: string = 'About';
+  TXT_MENUITEM_SPY:             string = 'Spy!';
+  TXT_MENUITEM_ABOUT:           string = 'About';
 
-  ID_TOOLBAR_ICON:    string = 'TOOLBAR_ICON';
+  ID_TOOLBAR_ICON_STD_SMALL:    string = 'TOOLBAR_ICON_STD_SMALL';
+  ID_TOOLBAR_ICON_FLUENT_LIGHT: string = 'TOOLBAR_ICON_FLUENT_LIGHT';
+  ID_TOOLBAR_ICON_FLUENT_DARK:  string = 'TOOLBAR_ICON_FLUENT_DARK';
 
 
 // Functions associated to the plugin's Notepad++ menu entries
@@ -109,7 +113,9 @@ end;
 destructor TNppUISpyPlugin.Destroy;
 begin
   // Cleanup
-  FToolbarBmp.Free;
+  FToolbarIconStdSmall.Free;
+  FToolbarIconFluentLight.Free;
+  FToolbarIconFluentDark.Free;
 
   // It's totally legal to call Free on already freed instances,
   // no checks needed
@@ -133,20 +139,41 @@ end;
 // Called when Notepad++ is ready for toolbar modifications
 procedure TNppUISpyPlugin.DoNppnToolbarModification;
 var
-  IconData: TToolbarIcons;
+  IconDataOld: TToolbarIcons;
+  IconDataNew: TToolbarIconsWithDarkMode;
 
 begin
   inherited;
 
-  FToolbarBmp := TBitmap.Create;
+  if IsNppMinVersion(8, 0) then
+  begin
+    FToolbarIconStdSmall := TBitmap.Create;
+    FToolbarIconStdSmall.LoadFromResourceName(HInstance, ID_TOOLBAR_ICON_STD_SMALL);
+    FToolbarIconStdSmall.PixelFormat := pf8Bit;
 
-  FToolbarBmp.LoadFromResourceName(HInstance, ID_TOOLBAR_ICON);
-  FToolbarBmp.PixelFormat := pf8Bit;
+    FToolbarIconFluentLight := TIcon.Create;
+    FToolbarIconFluentLight.LoadFromResourceName(HInstance, ID_TOOLBAR_ICON_FLUENT_LIGHT);
 
-  IconData.ToolbarBmp  := FToolbarBmp.Handle;
-  IconData.ToolbarIcon := 0;
+    FToolbarIconFluentDark := TIcon.Create;
+    FToolbarIconFluentDark.LoadFromResourceName(HInstance, ID_TOOLBAR_ICON_FLUENT_DARK);
 
-  AddToolbarIcon(CmdIdFromMenuItemIdx(FMenuItemIdxSpy), IconData);
+    IconDataNew.ToolbarBmp          := FToolbarIconStdSmall.Handle;
+    IconDataNew.ToolbarIcon         := FToolbarIconFluentLight.Handle;
+    IconDataNew.ToolbarIconDarkMode := FToolbarIconFluentDark.Handle;
+
+    AddToolbarIconEx(CmdIdFromMenuItemIdx(FMenuItemIdxSpy), IconDataNew);
+  end
+  else
+  begin
+    FToolbarIconStdSmall := TBitmap.Create;
+    FToolbarIconStdSmall.LoadFromResourceName(HInstance, ID_TOOLBAR_ICON_STD_SMALL);
+    FToolbarIconStdSmall.PixelFormat := pf8Bit;
+
+    IconDataOld.ToolbarBmp  := FToolbarIconStdSmall.Handle;
+    IconDataOld.ToolbarIcon := 0;
+
+    AddToolbarIcon(CmdIdFromMenuItemIdx(FMenuItemIdxSpy), IconDataOld);
+  end;
 end;
 
 

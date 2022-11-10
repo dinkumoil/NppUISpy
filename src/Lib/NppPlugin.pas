@@ -75,6 +75,7 @@ type
     function    AddFuncItem(Name: nppString; Func: PFuncPluginCmd; ShortcutKey: TShortcutKey): Integer; overload;
 
     procedure   AddToolbarIcon(CmdId: cardinal; var ToolbarIcon: TToolbarIcons);
+    procedure   AddToolbarIconEx(CmdId: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode);
 
     // Notepad++ notification handlers
     procedure   DoNppnReady; virtual;
@@ -103,6 +104,8 @@ type
     procedure   DoNppnShortcutRemapped; virtual;
     procedure   DoNppnWordStylesUpdated; virtual;
     procedure   DoNppnSnapshotDirtyFileLoaded; virtual;
+    procedure   DoNppnDarkModeChanged; virtual;
+    procedure   DoNppnCmdLinePluginMsg; virtual;
 
     // Basic plugin properties
     property    PluginName:         nppString       read FPluginName         write FPluginName;
@@ -297,7 +300,9 @@ begin
     NPPN_DOCORDERCHANGED:         DoNppnDocOrderChanged;
     NPPN_SHORTCUTREMAPPED:        DoNppnShortcutRemapped;
     NPPN_WORDSTYLESUPDATED:       DoNppnWordStylesUpdated;
-    NPPN_TB_MODIFICATION:         DoNppnToolbarModification;
+    NPPN_TBMODIFICATION:          DoNppnToolbarModification;
+    NPPN_DARKMODECHANGED:         DoNppnDarkModeChanged;
+    NPPN_CMDLINEPLUGINMSG:        DoNppnCmdLinePluginMsg;
   end;
 end;
 
@@ -383,7 +388,13 @@ end;
 
 procedure TNppPlugin.AddToolbarIcon(CmdId: cardinal; var ToolbarIcon: TToolbarIcons);
 begin
-  SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON, WPARAM(CmdId), LPARAM(@ToolbarIcon));
+  SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON_DEPRECATED, WPARAM(CmdId), LPARAM(@ToolbarIcon));
+end;
+
+
+procedure TNppPlugin.AddToolbarIconEx(CmdId: cardinal; var ToolbarIcon: TToolbarIconsWithDarkMode);
+begin
+  SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON_FORDARKMODE, WPARAM(CmdId), LPARAM(@ToolbarIcon));
 end;
 
 
@@ -476,6 +487,9 @@ begin
   MinorVersion := LoWord(Version);
 
   if MinorVersion < 10 then
+    MinorVersion := MinorVersion * 100
+
+  else if MinorVersion < 100 then
     MinorVersion := MinorVersion * 10;
 
   Result := MajorVersion;
@@ -489,7 +503,15 @@ var
 
 begin
   GetNppVersion(MajorVersion, MinorVersion);
-  Result := (MajorVersion >= AMajorVersion) and (MinorVersion >= AMinorVersion);
+
+  if MajorVersion > AMajorVersion then
+    Result := true
+
+  else if (MajorVersion = AMajorVersion) and (MinorVersion >= AMinorVersion) then
+    Result := true
+
+  else
+    Result := false;
 end;
 
 
@@ -1107,7 +1129,7 @@ begin
 end;
 
 
-// Notifies plugins that a snapshot dirty file is loaded on startup
+// Notifies plugins that a snapshot dirty file is loaded on startup.
 // hwndFrom = NULL
 // idFrom   = int bufferID
 procedure TNppPlugin.DoNppnSnapshotDirtyFileLoaded;
@@ -1116,4 +1138,24 @@ begin
 end;
 
 
+// Notifies plugins that Dark Mode was enabled/disabled. Use NPPM_ISDARKMODEENABLED
+// to query Dark Mode status.
+// hwndFrom = HWND hwndNpp
+procedure TNppPlugin.DoNppnDarkModeChanged;
+begin
+  // override this
+end;
+
+
+// Notifies plugins that command line contains an argument for plugins (in the
+// form -pluginMessage="YOUR_PLUGIN_ARGUMENT")
+// hwndFrom = HWND hwndNpp
+// idFrom   = wchar_t *pluginMessage
+procedure TNppPlugin.DoNppnCmdLinePluginMsg;
+begin
+  // override this
+end;
+
+
 end.
+

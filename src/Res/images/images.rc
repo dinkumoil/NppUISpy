@@ -1,1 +1,3 @@
-TOOLBAR_ICON  BITMAP  "spy.bmp"
+TOOLBAR_ICON_STD_SMALL    BITMAP  "SpyStdSmall.bmp"
+TOOLBAR_ICON_FLUENT_LIGHT ICON    "SpyFluentLight.ico"
+TOOLBAR_ICON_FLUENT_DARK  ICON    "SpyFluentDark.ico"
