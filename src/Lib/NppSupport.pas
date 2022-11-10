@@ -96,7 +96,7 @@ const
   // The return value is the number of file full path names copied in sessionFileArray.
 
   NPPM_SAVESESSION               = (NPPMSG + 15);  // see TSessionInfo
-  // void NPPM_SAVESESSION(0, TSessionInfo sessionInfomation)
+  // void NPPM_SAVESESSION(0, TSessionInfo *sessionInfomation)
   // This message let plugins save a session file (xml format) by providing an
   // array of full file path names.
 
@@ -158,6 +158,13 @@ const
     SUB_VIEW  = 1;
 
   NPPM_SETSTATUSBAR              = (NPPMSG + 24);
+  // BOOL NPPM_SETSTATUSBAR(INT sbItem, TCHAR *text)
+  // Send this message to set the text of a certain status bar item indicated
+  // by parameter sbItem.
+  // The return value is FALSE if sbItem contains an invalid value or if
+  // parameter text is NULL or points to an empty string. Otherwise the return
+  // value is TRUE.
+  // Parameter sbItem can be one of the following values:
     STATUSBAR_DOC_TYPE     = 0;
     STATUSBAR_DOC_SIZE     = 1;
     STATUSBAR_CUR_POS      = 2;
@@ -199,17 +206,17 @@ const
   NPPM_DMMSHOW                   = (NPPMSG + 30);
   // void NPPM_DMMSHOW(0, HWND hDlg)
   // This message is used for your plugin's dockable dialog. Send this message
-  // to show the dialog. hDlg is the handle of your dialog to be shown.
+  // to show the dialog. hDlg is the handle of your dialog to be shown (tTbData->hClient).
 
   NPPM_DMMHIDE                   = (NPPMSG + 31);
   // void NPPM_DMMHIDE(0, HWND hDlg)
   // This message is used for your plugin's dockable dialog. Send this message
-  // to hide the dialog. hDlg is the handle of your dialog to be hidden.
+  // to hide the dialog. hDlg is the handle of your dialog to be hidden (tTbData->hClient).
 
   NPPM_DMMUPDATEDISPINFO         = (NPPMSG + 32);
   // void NPPM_DMMUPDATEDISPINFO(0, HWND hDlg)
   // This message is used for your plugin's dockable dialog. Send this message
-  // to update (redraw) the dialog. hDlg is the handle of your dialog to be updated.
+  // to update (redraw) the dialog. hDlg is the handle of your dialog to be updated (tTbData->hClient).
 
   NPPM_DMMREGASDCKDLG            = (NPPMSG + 33);
   // void NPPM_DMMREGASDCKDLG(0, TTbData *dockingData)
@@ -248,19 +255,21 @@ const
   // Send this message to Notepad++ to save all opened document.
 
   NPPM_SETMENUITEMCHECK          = (NPPMSG + 40);
-  // void NPPM_SETMENUITEMCHECK(INT cmdID, TRUE/FALSE)
+  // void NPPM_SETMENUITEMCHECK(UINT cmdID, TRUE/FALSE)
   // Use this message to set/remove the check on menu item.
   // cmdID is the command ID which corresponds to the menu item.
 
-  NPPM_ADDTOOLBARICON            = (NPPMSG + 41);
-  // void NPPM_ADDTOOLBARICON(INT funcItem[X]._cmdID, TToolbarIcons *icon)
+  NPPM_ADDTOOLBARICON_DEPRECATED = (NPPMSG + 41);
+  // void NPPM_ADDTOOLBARICON_DEPRECATED(UINT cmdID, TToolbarIcons *icon)
   // see TToolbarIcons
+	// 2 formats of icon are needed: .ico & .bmp
+	// Both handles should be set so the icon will be displayed correctly if toolbar
+  // icon sets are changed by users
+  // DEPRECATED: use NPPM_ADDTOOLBARICON_FORDARKMODE instead
 
   NPPM_GETWINDOWSVERSION         = (NPPMSG + 42);
-  // winVer NPPM_GETWINDOWSVERSION(0, 0)
-  // The return value is windows version of enum winVer. The possible values are
-  //   WV_UNKNOWN, WV_WIN32S, WV_95, WV_98, WV_ME, WV_NT, WV_W2K, WV_XP, WV_S2003,
-  //   WV_XPX64 and WV_VISTA
+  // TWinVer NPPM_GETWINDOWSVERSION(0, 0)
+  // The return value is windows version of enum TWinVer.
 
   NPPM_DMMGETPLUGINHWNDBYNAME    = (NPPMSG + 43);
   // HWND NPPM_DMMGETPLUGINHWNDBYNAME(const TCHAR *windowName, const TCHAR *moduleName)
@@ -309,14 +318,32 @@ const
   // tabbar context menu for the current document.
 
   NPPM_GETNPPVERSION             = (NPPMSG + 50);
-  // INT NPPM_GETNPPVERSION(0, 0)
+  // INT NPPM_GETNPPVERSION(BOOL ADD_ZERO_PADDING, 0)
   // You can get Notepad++ version via this message. The return value is made up
   // of 2 parts: the major version (high word) and the minor version (low word).
   // Note that this message is supported by the v4.7 or higher version. Earlier
   // versions return 0.
-  // example: v4.6
-  //   HIWORD(version) == 4
-  //   LOWORD(version) == 6
+  //
+	// ADD_ZERO_PADDING == TRUE
+	//
+	// version  | HIWORD | LOWORD
+	//------------------------------
+	// 8.9.6.4  | 8      | 964
+	// 9        | 9      | 0
+	// 6.9      | 6      | 900
+	// 6.6.6    | 6      | 660
+	// 13.6.6.6 | 13     | 666
+	//
+	//
+	// ADD_ZERO_PADDING == FALSE
+	//
+	// version  | HIWORD | LOWORD
+	//------------------------------
+	// 8.9.6.4  | 8      | 964
+	// 9        | 9      | 0
+	// 6.9      | 6      | 9
+	// 6.6.6    | 6      | 66
+	// 13.6.6.6 | 13     | 666
 
   NPPM_HIDETABBAR                = (NPPMSG + 51);
   // BOOL NPPM_HIDETABBAR(0, BOOL hideOrNot)
@@ -369,28 +396,28 @@ const
   // INT NPPM_GETBUFFERLANGTYPE(UINT_PTR bufferID, 0)
   // wParam: BufferID to get LangType from
   // lParam: 0
-  // Returns as int, see LangType. -1 on error
+  // Returns as int, see TLangType. -1 on error
 
   NPPM_SETBUFFERLANGTYPE         = (NPPMSG + 65);
   // BOOL NPPM_SETBUFFERLANGTYPE(UINT_PTR bufferID, INT langType)
   // wParam: BufferID to set LangType of
-  // lParam: LangType
+  // lParam: TNppLang
   // Returns TRUE on success, FALSE otherwise
-  // use int, see LangType for possible values
+  // use int, see TNppLang for possible values
   // L_USER and L_EXTERNAL are not supported
 
   NPPM_GETBUFFERENCODING         = (NPPMSG + 66);
   // INT NPPM_GETBUFFERENCODING(UINT_PTR bufferID, 0)
   // wParam: BufferID to get encoding from
   // lParam: 0
-  // returns as int, see UniMode. -1 on error
+  // returns as int, see TUniMode. -1 on error
 
   NPPM_SETBUFFERENCODING         = (NPPMSG + 67);
   // BOOL NPPM_SETBUFFERENCODING(UINT_PTR bufferID, INT encoding)
   // wParam: BufferID to set encoding of
   // lParam: format
   // Returns TRUE on success, FALSE otherwise
-  // use int, see UniMode
+  // use int, see TUniMode
   // Can only be done on new, unedited files
 
   NPPM_GETBUFFERFORMAT                 = (NPPMSG + 68);
@@ -401,6 +428,7 @@ const
   //  0: Windows EOL format
   //  1: Macintosh EOL format
   //  2: UNIX EOL format
+  //  3: unknown
   //  -1 on error
 
   NPPM_SETBUFFERFORMAT                 = (NPPMSG + 69);
@@ -411,6 +439,7 @@ const
   // format 0: Windows EOL format
   //        1: Macintosh EOL format
   //        2: UNIX EOL format
+  //        3: unknown
 
   NPPM_HIDETOOLBAR                     = (NPPMSG + 70);
   // BOOL NPPM_HIDETOOLBAR(0, BOOL hideOrNot)
@@ -452,7 +481,7 @@ const
   //   otherwise FALSE
 
   NPPM_GETSHORTCUTBYCMDID              = (NPPMSG + 76);
-  // BOOL NPPM_GETSHORTCUTBYCMDID(INT cmdID, ShortcutKey *sk)
+  // BOOL NPPM_GETSHORTCUTBYCMDID(UINT cmdID, ShortcutKey *sk)
   // get your plugin command current mapped shortcut into sk via cmdID
   // You may need it after getting NPPN_READY notification
   // returned value:
@@ -465,7 +494,7 @@ const
   // The return value is TRUE (1) if the operation is successful, otherwise FALSE (0).
 
   NPPM_SAVECURRENTFILEAS               = (NPPMSG + 78);
-  // BOOL NPPM_SAVECURRENTFILEAS (BOOL asCopy, const TCHAR* filename)
+  // BOOL NPPM_SAVECURRENTFILEAS(BOOL asCopy, const TCHAR *filename)
   // Performs a Save As (asCopy == 0) or Save a Copy As (asCopy == 1) on the
   // current buffer, outputting to filename.
 
@@ -480,7 +509,7 @@ const
   // Use to identify if subclassing is necessary
 
   NPPM_ALLOCATECMDID                   = (NPPMSG + 81);
-  // BOOL NPPM_ALLOCATECMDID(INT numberRequested, INT *startNumber)
+  // BOOL NPPM_ALLOCATECMDID(INT numberRequested, UINT *startNumber)
   // Allows a plugin to obtain a number of consecutive menu item IDs for creating
   // menus dynamically, with the guarantee of these IDs not clashing with any
   // other plugin. Sets startNumber to the initial command ID if successful and
@@ -510,12 +539,12 @@ const
   // You allocate a buffer of the length of (the number of characters + 1) then call NPPM_GETLANGUAGEDESC function the 2nd time
   // by passing allocated buffer as argument langDesc
 
-  NPPM_SHOWDOCSWITCHER                 = (NPPMSG + 85);
+  NPPM_SHOWDOCLIST                     = (NPPMSG + 85);
   // VOID NPPM_ISDOCSWITCHERSHOWN(0, BOOL toShowOrNot)
   // Send this message to show or hide doc switcher.
   // if toShowOrNot is TRUE then show doc switcher, otherwise hide it.
 
-  NPPM_ISDOCSWITCHERSHOWN              = (NPPMSG + 86);
+  NPPM_ISDOCLISTSHOWN                  = (NPPMSG + 86);
   // BOOL NPPM_ISDOCSWITCHERSHOWN(0, 0)
   // Check to see if doc switcher is shown.
 
@@ -530,8 +559,8 @@ const
   // Return: current edit view of Notepad++.
   // Only 2 possible values: 0 = Main, 1 = Secondary
 
-  NPPM_DOCSWITCHERDISABLECOLUMN        = (NPPMSG + 89);
-  // VOID NPPM_DOCSWITCHERDISABLECOLUMN(0, BOOL disableOrNot)
+  NPPM_DOCLISTDISABLEEXTCOLUMN         = (NPPMSG + 89);
+  // VOID NPPM_DOCLISTDISABLEEXTCOLUMN(0, BOOL disableOrNot)
   // Disable or enable extension column of doc switcher
 
   NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR = (NPPMSG + 90);
@@ -555,7 +584,7 @@ const
   // VOID NPPM_DISABLEAUTOUPDATE(0, 0)
 
 	NPPM_REMOVESHORTCUTBYCMDID           = (NPPMSG + 96);
-	// BOOL NPPM_REMOVESHORTCUTASSIGNMENT(int cmdID, 0)
+	// BOOL NPPM_REMOVESHORTCUTASSIGNMENT(UINT cmdID, 0)
 	// removes the assigned shortcut mapped to cmdID
 	// returned value: TRUE if function call is successful, otherwise FALSE
   // Introduced in v7.5.9
@@ -569,6 +598,101 @@ const
   // (not including the terminating nul character), allocate pluginRootPath buffer with
   // the return value + 1, then call it again to get the path.
   // Introduced in v7.6
+
+	NPPM_GETSETTINGSONCLOUDPATH          = (NPPMSG + 98);
+	// INT NPPM_GETSETTINGSCLOUDPATH(size_t strLen, TCHAR *settingsOnCloudPath)
+	// Get settings on cloud path. It's useful if plugins want to store its settings on Cloud, if this path is set.
+	// Returns the number of TCHAR copied/to copy. If the return value is 0, then this path is not set, or the "strLen" is not enough to copy the path.
+	// Users should call it with settingsCloudPath be NULL to get the required number of TCHAR (not including the terminating nul character),
+	// allocate settingsCloudPath buffer with the return value + 1, then call it again to get the path.
+  // Introduced in v7.9.2
+
+	NPPM_SETLINENUMBERWIDTHMODE          = (NPPMSG + 99);
+		LINENUMWIDTH_DYNAMIC  = 0;
+		LINENUMWIDTH_CONSTANT = 1;
+	// BOOL NPPM_SETLINENUMBERWIDTHMODE(0, INT widthMode)
+	// Set line number margin width in dynamic width mode (LINENUMWIDTH_DYNAMIC) or constant width mode (LINENUMWIDTH_CONSTANT)
+	// It may help some plugins to disable non-dynamic line number margins width to have a smoothly visual effect while vertical scrolling the content in Notepad++
+	// If calling is successful return TRUE, otherwise return FALSE.
+  // Introduced in v7.9.2
+
+	NPPM_GETLINENUMBERWIDTHMODE          = (NPPMSG + 100);
+	// INT NPPM_GETLINENUMBERWIDTHMODE(0, 0)
+	// Get line number margin width in dynamic width mode (LINENUMWIDTH_DYNAMIC) or constant width mode (LINENUMWIDTH_CONSTANT)
+  // Introduced in v7.9.2
+
+
+  NPPM_ADDTOOLBARICON_FORDARKMODE      = (NPPMSG + 101);
+	// Use NPPM_ADDTOOLBARICON_FORDARKMODE instead obsolete NPPM_ADDTOOLBARICON which doesn't support the dark mode
+  // void NPPM_ADDTOOLBARICON_FORDARKMODE(UINT cmdID, TToolbarIconsWithDarkMode iconHandles)
+  // see TToolbarIconsWithDarkMode
+	// 2 formats / 3 icons are needed:  1 * BMP + 2 * ICO
+	// All 3 handles below should be set so the icon will be displayed correctly if toolbar icon sets are changed by users, also in dark mode
+  // Introduced in v8.0
+
+	NPPM_DOCLISTDISABLEPATHCOLUMN        = (NPPMSG + 102);
+	// VOID NPPM_DOCLISTDISABLEPATHCOLUMN(0, BOOL disableOrNot)
+	// Disable or enable path column of Document List
+  // Introduced in v8.1.5
+
+	NPPM_GETEXTERNALLEXERAUTOINDENTMODE  = (NPPMSG + 103);
+	// BOOL NPPM_GETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, TExternalLexerAutoIndentMode *autoIndentMode)
+	// Get TExternalLexerAutoIndentMode for an installed external programming language.
+	// - Standard means Notepad++ will keep the same TAB indentation between lines;
+	// - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
+	// - Custom means a Plugin will be controlling auto-indentation for the current language.
+	// returned values: TRUE for successful searches, otherwise FALSE.
+  // Introduced in v8.3.3
+
+	NPPM_SETEXTERNALLEXERAUTOINDENTMODE  = (NPPMSG + 104);
+	// BOOL NPPM_SETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, TExternalLexerAutoIndentMode autoIndentMode)
+	// Set TExternalLexerAutoIndentMode for an installed external programming language.
+	// - Standard means Notepad++ will keep the same TAB indentation between lines;
+	// - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
+	// - Custom means a Plugin will be controlling auto-indentation for the current language.
+	// returned value: TRUE if function call was successful, otherwise FALSE.
+  // Introduced in v8.3.3
+
+	NPPM_ISAUTOINDENTON                  = (NPPMSG + 105);
+	// BOOL NPPM_ISAUTOINDENTON(0, 0)
+	// Returns the current Use Auto-Indentation setting in Notepad++ Preferences.
+  // Introduced in v8.3.3
+
+	NPPM_GETCURRENTMACROSTATUS           = (NPPMSG + 106);
+	// TMacroStatus NPPM_GETCURRENTMACROSTATUS(0, 0)
+	// Gets current TMacroStatus. Idle means macro is not in use and it's empty
+  // Introduced in v8.3.3
+
+	NPPM_ISDARKMODEENABLED               = (NPPMSG + 107);
+	// bool NPPM_ISDARKMODEENABLED(0, 0)
+	// Returns true when Notepad++ Dark Mode is enable, false when it is not.
+  // Introduced in v8.4.1
+
+	NPPM_GETDARKMODECOLORS               = (NPPMSG + 108);
+	// bool NPPM_GETDARKMODECOLORS(size_t cbSize, TNppDarkModeColors *returnColors)
+	// - cbSize must be filled with sizeof(TNppDarkModeColors).
+	// - returnColors must be a pre-allocated TNppDarkModeColors struct.
+	// Returns true when successful, false otherwise.
+  // Introduced in v8.4.1
+
+	NPPM_GETCURRENTCMDLINE               = (NPPMSG + 109);
+	// INT NPPM_GETCURRENTCMDLINE(size_t strLen, TCHAR *commandLineStr)
+	// Get the Current Command Line string.
+	// Returns the number of TCHAR copied/to copy.
+	// Users should call it with commandLineStr as NULL to get the required number of TCHAR (not including the terminating nul character),
+	// allocate commandLineStr buffer with the return value + 1, then call it again to get the current command line string.
+  // Introduced in v8.4.2
+
+	NPPM_CREATELEXER                     = (NPPMSG + 110);
+	// void* NPPN_CREATELEXER(0, const TCHAR *lexer_name)
+	// Returns the ILexer pointer created by Lexilla
+  // Introduced in v8.4.3
+
+	NPPM_GETBOOKMARKID                   = (NPPMSG + 111);
+	// void* NPPM_GETBOOKMARKID(0, 0)
+	// Returns the bookmark ID
+  // Introduced in v8.4.7
+
 
 
   // ---------------------------------------------------------------------------
@@ -594,6 +718,7 @@ const
     CURRENT_COLUMN      = 9;
     NPP_FULL_FILE_PATH  = 10;
     GETFILENAMEATCURSOR = 11;
+    CURRENT_LINESTR     = 12;
 
   // BOOL NPPM_GETXXXXXXXXXXXXXXXX(size_t strLen, TCHAR *str)
   // where str is the allocated TCHAR array,
@@ -609,6 +734,8 @@ const
 
   NPPM_GETCURRENTWORD      = (RUNCOMMAND_USER + CURRENT_WORD);
   NPPM_GETFILENAMEATCURSOR = (RUNCOMMAND_USER + GETFILENAMEATCURSOR);
+
+  NPPM_GETCURRENTLINESTR   = (RUNCOMMAND_USER + CURRENT_LINESTR);
 
   NPPM_GETCURRENTLINE      = (RUNCOMMAND_USER + CURRENT_LINE);
   // INT NPPM_GETCURRENTLINE(0, 0)
@@ -642,9 +769,9 @@ const
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
-  NPPN_TB_MODIFICATION         = (NPPN_FIRST + 2);
+  NPPN_TBMODIFICATION          = (NPPN_FIRST + 2);
   // To notify plugins that toolbar icons can be registered
-  // scnNotification->nmhdr.code     = NPPN_TB_MODIFICATION;
+  // scnNotification->nmhdr.code     = NPPN_TBMODIFICATION;
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom   = 0;
 
@@ -796,6 +923,22 @@ const
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
+	NPPN_DARKMODECHANGED         = (NPPN_FIRST + 27);
+  // To notify plugins that Dark Mode was enabled/disabled
+  // Use NPPM_ISDARKMODEENABLED to query Dark Mode status
+	// scnNotification->nmhdr.code = NPPN_DARKMODECHANGED;
+	// scnNotification->nmhdr.hwndFrom = hwndNpp;
+	// scnNotification->nmhdr.idFrom = 0;
+  // Introduced in v8.4.1
+
+	NPPN_CMDLINEPLUGINMSG        = (NPPN_FIRST + 28);
+  // To notify plugins that the new argument for plugins (via '-pluginMessage="YOUR_PLUGIN_ARGUMENT"'
+  // in command line) is available
+	// scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
+	// scnNotification->nmhdr.hwndFrom = hwndNpp;
+	// scnNotification->nmhdr.idFrom = pluginMessage; // where pluginMessage is pointer of type wchar_t
+  // Introduced in v8.4.2
+
 
   // ---------------------------------------------------------------------------
   // Defines for docking manager
@@ -810,9 +953,10 @@ const
   DOCKCONT_MAX = 4;
 
   // mask params for plugins of internal dialogs
-  DWS_ICONTAB = 1; // Icon for tabs are available
-  DWS_ICONBAR = 2; // Icon for icon bar are available (currently not supported)
-  DWS_ADDINFO = 4; // Additional information are in use
+  DWS_ICONTAB   = $00000001; // Icon for tabs are available
+  DWS_ICONBAR   = $00000002; // Icon for icon bar are available (currently not supported)
+  DWS_ADDINFO   = $00000004; // Additional information are in use
+  DWS_PARAMSALL = $00000007;
 
   // default docking values for first call of plugin
   DWS_DF_CONT_LEFT   = CONT_LEFT shl 28;   // default docking on left
@@ -824,6 +968,7 @@ const
 
   // dockingResource.h
   DMN_FIRST = 1050;
+
   DMN_CLOSE = (DMN_FIRST + 1); //nmhdr.code = DWORD(DMN_CLOSE, 0));
                                //nmhdr.hwndFrom = hwndNpp;
                                //nmhdr.idFrom = ctrlIdNpp;
@@ -847,19 +992,70 @@ type
   // Languages enumeration, s.a. Notepad++ menu Language
   // ---------------------------------------------------------------------------
   // Don't use L_JS, use L_JAVASCRIPT instead
-  TNppLang = (L_TEXT        , L_PHP    , L_C         , L_CPP       , L_CS          , L_OBJC      , L_JAVA   , L_RC          ,
-              L_HTML        , L_XML    , L_MAKEFILE  , L_PASCAL    , L_BATCH       , L_INI       , L_ASCII  , L_USER        ,
-              L_ASP         , L_SQL    , L_VB        , L_JS        , L_CSS         , L_PERL      , L_PYTHON , L_LUA         ,
-              L_TEX         , L_FORTRAN, L_BASH      , L_FLASH     , L_NSIS        , L_TCL       , L_LISP   , L_SCHEME      ,
-              L_ASM         , L_DIFF   , L_PROPS     , L_PS        , L_RUBY        , L_SMALLTALK , L_VHDL   , L_KIX         ,
-              L_AU3         , L_CAML   , L_ADA       , L_VERILOG   , L_MATLAB      , L_HASKELL   , L_INNO   , L_SEARCHRESULT,
-              L_CMAKE       , L_YAML   , L_COBOL     , L_GUI4CLI   , L_D           , L_POWERSHELL, L_R      , L_JSP         ,
-              L_COFFEESCRIPT, L_JSON   , L_JAVASCRIPT, L_FORTRAN_77, L_BAANC       , L_SREC      , L_IHEX   , L_TEHEX       ,
-              L_SWIFT       , L_ASN1   , L_AVS       , L_BLITZBASIC, L_PUREBASIC   , L_FREEBASIC , L_CSOUND , L_ERLANG      ,
-              L_ESCRIPT     , L_FORTH  , L_LATEX     , L_MMIXAL    , L_NIMROD      , L_NNCRONTAB , L_OSCRIPT, L_REBOL       ,
-              L_REGISTRY    , L_RUST   , L_SPICE     , L_TXT2TAGS  , L_VISUALPROLOG,
-              // The end of enumerated language type, so it should be always at the end
-              L_EXTERNAL);
+  TNppLang = (
+    L_TEXT        , L_PHP    , L_C         , L_CPP       , L_CS          , L_OBJC      , L_JAVA   , L_RC          ,
+    L_HTML        , L_XML    , L_MAKEFILE  , L_PASCAL    , L_BATCH       , L_INI       , L_ASCII  , L_USER        ,
+    L_ASP         , L_SQL    , L_VB        , L_JS        , L_CSS         , L_PERL      , L_PYTHON , L_LUA         ,
+    L_TEX         , L_FORTRAN, L_BASH      , L_FLASH     , L_NSIS        , L_TCL       , L_LISP   , L_SCHEME      ,
+    L_ASM         , L_DIFF   , L_PROPS     , L_PS        , L_RUBY        , L_SMALLTALK , L_VHDL   , L_KIX         ,
+    L_AU3         , L_CAML   , L_ADA       , L_VERILOG   , L_MATLAB      , L_HASKELL   , L_INNO   , L_SEARCHRESULT,
+    L_CMAKE       , L_YAML   , L_COBOL     , L_GUI4CLI   , L_D           , L_POWERSHELL, L_R      , L_JSP         ,
+    L_COFFEESCRIPT, L_JSON   , L_JAVASCRIPT, L_FORTRAN_77, L_BAANC       , L_SREC      , L_IHEX   , L_TEHEX       ,
+    L_SWIFT       , L_ASN1   , L_AVS       , L_BLITZBASIC, L_PUREBASIC   , L_FREEBASIC , L_CSOUND , L_ERLANG      ,
+    L_ESCRIPT     , L_FORTH  , L_LATEX     , L_MMIXAL    , L_NIM         , L_NNCRONTAB , L_OSCRIPT, L_REBOL       ,
+    L_REGISTRY    , L_RUST   , L_SPICE     , L_TXT2TAGS  , L_VISUALPROLOG, L_TYPESCRIPT,
+    // The end of enumerated language type, so it should be always at the end
+    L_EXTERNAL
+  );
+
+
+  // ---------------------------------------------------------------------------
+  // Unicode mode enumeration
+  // ---------------------------------------------------------------------------
+  TUniMode = (
+    uni8Bit       = 0,
+    uniUTF8       = 1,
+    uni16BE       = 2,
+    uni16LE       = 3,
+    uniCookie     = 4,
+    uni7Bit       = 5,
+    uni16BE_NoBOM = 6,
+    uni16LE_NoBOM = 7,
+    uniEnd
+  );
+
+
+  // ---------------------------------------------------------------------------
+  // External lexer auto indent mode enumeration
+  // ---------------------------------------------------------------------------
+  TExternalLexerAutoIndentMode = (
+    Standard, C_Like, Custom
+  );
+
+
+  // ---------------------------------------------------------------------------
+  // Macro status enumeration
+  // ---------------------------------------------------------------------------
+  TMacroStatus = (
+    Idle, RecordInProgress, RecordingStopped, PlayingBack
+  );
+
+
+  // ---------------------------------------------------------------------------
+  // Windows version enumeration
+  // ---------------------------------------------------------------------------
+  TWinVer = (
+    WV_UNKNOWN, WV_WIN32S, WV_95,    WV_98,   WV_ME,   WV_NT,    WV_W2K,   WV_XP,
+    WV_S2003,   WV_XPX64,  WV_VISTA, WV_WIN7, WV_WIN8, WV_WIN81, WV_WIN10, WV_WIN11
+  );
+
+
+  // ---------------------------------------------------------------------------
+  // Processor platform enumeration
+  // ---------------------------------------------------------------------------
+  TPlatform = (
+    PF_UNKNOWN, PF_X86, PF_X64, PF_IA64, PF_ARM64
+  );
 
 
   // ---------------------------------------------------------------------------
@@ -886,11 +1082,35 @@ type
   end;
 
 
-  // Set plugin toolbar icon
+  // Set plugin toolbar icon, deprecated since Npp v8.0
   TToolbarIcons = record
     ToolbarBmp  : HBITMAP;
     ToolbarIcon : HICON;
   end;
+
+
+  // Set plugin toolbar icon, use from Npp v8.0 onwards
+	TToolbarIconsWithDarkMode = record
+		ToolbarBmp:          HBITMAP;  // light mode 16x16
+		ToolbarIcon:         HICON;    // dark mode unfilled 16x16 or 32x32
+		ToolbarIconDarkMode: HICON;    // dark mode filled 16x16 or 32x32
+	end;
+
+
+	TNppDarkModeColors = record
+		background:       COLORREF;
+		softerBackground: COLORREF;
+		hotBackground:    COLORREF;
+		pureBackground:   COLORREF;
+		errorBackground:  COLORREF;
+		text:             COLORREF;
+		darkerText:       COLORREF;
+		disabledText:     COLORREF;
+		linkText:         COLORREF;
+		edge:             COLORREF;
+		hotEdge:          COLORREF;
+		disabledEdge:     COLORREF;
+	end;
 
 
   // Dockable dialogs
