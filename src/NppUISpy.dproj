@@ -34,7 +34,7 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<VerInfo_MinorVer>1</VerInfo_MinorVer>
+			<VerInfo_MinorVer>2</VerInfo_MinorVer>
 			<PreBuildEvent><![CDATA[cmd /c ".\BuildScripts\PreBuildScript.cmd "$(PROJECTNAME)" $(CONFIG) $(PLATFORM)"
 $(PreBuildEvent)]]></PreBuildEvent>
 			<PostBuildEvent><![CDATA[cmd /c ".\BuildScripts\PostBuildScript.cmd "$(PROJECTNAME)" $(CONFIG) $(PLATFORM)"
@@ -52,7 +52,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
 			<DCC_E>false</DCC_E>
 			<DCC_F>false</DCC_F>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<VerInfo_Keys>CompanyName=;FileDescription=A plugin to explore the main menu and the toolbar of Notepad++ to figure out related menu command ids of menu items and toolbar buttons.;FileVersion=1.1.0.0;InternalName=;LegalCopyright=2018 - 2022 by Andreas Heim;LegalTrademarks=;OriginalFilename=NppUISpy.dll;ProductName=NppUISpy;ProductVersion=1.1.0.0;Comments=A plugin for Notepad++</VerInfo_Keys>
+			<VerInfo_Keys>CompanyName=;FileDescription=A plugin to explore the main menu and the toolbar of Notepad++ to figure out related menu command ids of menu items and toolbar buttons.;FileVersion=1.2.0.0;InternalName=;LegalCopyright=2018 - 2023 by Andreas Heim;LegalTrademarks=;OriginalFilename=NppUISpy.dll;ProductName=NppUISpy;ProductVersion=1.2.0.0;Comments=A plugin for Notepad++</VerInfo_Keys>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -100,6 +100,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
 			<DCCReference Include="dialog_TfrmSpy.pas">
 				<Form>frmSpy</Form>
 			</DCCReference>
+			<DCCReference Include="DataModule.pas"/>
 			<None Include="..\README.md"/>
 			<None Include="..\doc\NppUISpy.txt"/>
 			<BuildConfiguration Include="Release">

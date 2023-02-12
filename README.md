@@ -2,7 +2,7 @@
 
 Builds for 32 and 64 bits Notepad++ installations available
 
-Author: Andreas Heim, 2018 - 2022
+Author: Andreas Heim, 2018 - 2023
 
 
 # Features
@@ -12,6 +12,10 @@ With this plugin you can explore the main menu structure and the toolbar of Note
 You can left-click on menu item and toolbar button entries to execute the related command. With a right-click to the items a context menu pops up where you can select to copy the item's icon, its text or its menu command id to the clipboard.
 
 Both the menu item tree and the toolbar button list provide full-text search. Start typing while one of them is focused to make the first matching item getting highlighted.
+
+For advanced searching in both trees you can use the search UI controls. Select the tree to search in by clicking on its header row or by checking the option box beneath the tree. The search term input field provides a search history.
+
+When pressing the ALT key, the UI shows underlined characters that can be pressed together with the ALT key to control the UI by keyboard. Additionally, when the search term input field has input focus, you can press ENTER to search forwards and CTRL+ENTER to search backwards.
 
 ![Main dialog](NppUISpy.png)
 
@@ -47,6 +51,11 @@ The following steps depend on the version of Notepad++ you use.
 
 
 # History
+
+v1.2 - February 2023
+- enhanced: Added advanced search capabilities for menu item text, toolbar button hint text and menu command id.
+- enhanced: Added improved keyboard control capabilities using accelerator keys.
+
 
 v1.1 - November 2022
 - fixed:    When plugin's dialog boxes are on screen but hidden by another application's window which has input focus, it is not possible to return to Notepad++ by clicking its taskbar icon.

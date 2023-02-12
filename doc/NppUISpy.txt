@@ -1,10 +1,10 @@
 
 ********************************************************************************
 *                                                                              *
-*          NppUISpy plugin v1.1 for Notepad++                                  *
+*          NppUISpy plugin v1.2 for Notepad++                                  *
 *          Builds for 32 and 64 bits Notepad++ installations available         *
 *                                                                              *
-*          Author: Andreas Heim, 2018 - 2022                                   *
+*          Author: Andreas Heim, 2018 - 2023                                   *
 *                                                                              *
 ********************************************************************************
 
@@ -28,11 +28,28 @@ Both the menu item tree and the toolbar button list provide full-text search.
 Start typing while one of them is focused to make the first matching item
 getting highlighted.
 
+For advanced searching in both trees you can use the search UI controls. Select
+the tree to search in by clicking on its header row or by checking the option
+box beneath the tree. The search term input field provides a search history.
+
+When pressing the ALT key, the UI shows underlined characters that can be
+pressed together with the ALT key to control the UI by keyboard. Additionally,
+when the search term input field has input focus, you can press ENTER to search
+forwards and CTRL+ENTER to search backwards.
+
 
 
 ===========
   History
 ===========
+
+v1.2 - February 2023
+~~~~~~~~~~~~~~~~~~~~
+- enhanced: Added advanced search capabilities for menu item text, toolbar
+            button hint text and menu command id.
+- enhanced: Added improved keyboard control capabilities using accelerator
+            keys.
+
 
 v1.1 - November 2022
 ~~~~~~~~~~~~~~~~~~~~

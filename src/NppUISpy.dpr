@@ -37,7 +37,8 @@ uses
 
   Main in 'Main.pas',
   dialog_TfrmAbout in 'dialog_TfrmAbout.pas' {frmAbout},
-  dialog_TfrmSpy in 'dialog_TfrmSpy.pas' {frmSpy};
+  dialog_TfrmSpy in 'dialog_TfrmSpy.pas' {frmSpy},
+  DataModule in 'DataModule.pas';
 
 var
   // For global management of plugin instance
