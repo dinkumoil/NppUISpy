@@ -1,9 +1,10 @@
 object frmSpy: TfrmSpy
   Left = 525
   Top = 410
+  ActiveControl = cbxSearchText
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
-  ClientHeight = 344
+  ClientHeight = 357
   ClientWidth = 785
   Color = clBtnFace
   Constraints.MinHeight = 380
@@ -13,16 +14,27 @@ object frmSpy: TfrmSpy
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   PopupMode = pmAuto
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyPress = FormKeyPress
   OnShow = FormShow
   DesignSize = (
     785
-    344)
+    357)
   PixelsPerInch = 96
   TextHeight = 13
+  object lblSearchFor: TLabel
+    Left = 228
+    Top = 332
+    Width = 54
+    Height = 13
+    Anchors = [akLeft, akBottom]
+    Caption = 'Search for:'
+    ExplicitTop = 319
+  end
   object vstMenuItems: TVirtualStringTree
     Left = 8
     Top = 8
@@ -45,7 +57,6 @@ object frmSpy: TfrmSpy
     PopupMenu = mnuItemContextMenu
     ShowHint = True
     TabOrder = 0
-    TabStop = False
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale]
     TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toFullVertGridLines, toAlwaysHideSelection]
     TreeOptions.SelectionOptions = [toFullRowSelect, toRightClickSelect]
@@ -54,7 +65,9 @@ object frmSpy: TfrmSpy
     OnPaintText = vstMenuItemsPaintText
     OnGetImageIndex = vstMenuItemsGetImageIndex
     OnGetHint = vstMenuItemsGetHint
+    OnHeaderClick = vstMenuItemsHeaderClick
     OnIncrementalSearch = vstMenuItemsIncrementalSearch
+    OnKeyPress = vstMenuItemsKeyPress
     OnMouseDown = vstMenuItemsMouseDown
     OnNodeClick = vstMenuItemsNodeClick
     Columns = <
@@ -71,41 +84,41 @@ object frmSpy: TfrmSpy
         MinWidth = 80
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus]
         Position = 1
-        Width = 241
+        Width = 234
         WideText = 'Menu Items'
       end
       item
         MinWidth = 30
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus]
         Position = 2
-        Width = 76
+        Width = 69
         WideText = 'Command Id'
       end>
   end
   object btnExpand: TButton
-    Left = 208
-    Top = 286
-    Width = 25
-    Height = 25
+    Left = 170
+    Top = 285
+    Width = 22
+    Height = 22
     Hint = 'Expand all'
-    Anchors = [akRight, akBottom]
-    Caption = '-'
+    Anchors = [akLeft, akBottom]
+    Caption = '&-'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 2
+    TabOrder = 5
     OnClick = btnExpandClick
   end
   object btnCollapse: TButton
-    Left = 168
-    Top = 286
-    Width = 25
-    Height = 25
+    Left = 142
+    Top = 285
+    Width = 22
+    Height = 22
     Hint = 'Collapse all'
-    Anchors = [akRight, akBottom]
-    Caption = '+'
+    Anchors = [akLeft, akBottom]
+    Caption = '&+'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 1
+    TabOrder = 4
     OnClick = btnCollapseClick
   end
   object vstToolbarButtons: TVirtualStringTree
@@ -129,8 +142,7 @@ object frmSpy: TfrmSpy
     ParentShowHint = False
     PopupMenu = mnuItemContextMenu
     ShowHint = True
-    TabOrder = 3
-    TabStop = False
+    TabOrder = 1
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale]
     TreeOptions.MiscOptions = [toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
     TreeOptions.PaintOptions = [toHideFocusRect, toShowButtons, toShowDropmark, toShowHorzGridLines, toShowRoot, toShowVertGridLines, toThemeAware, toUseBlendedImages, toFullVertGridLines, toAlwaysHideSelection]
@@ -140,7 +152,9 @@ object frmSpy: TfrmSpy
     OnPaintText = vstToolbarButtonsPaintText
     OnGetImageIndex = vstToolbarButtonsGetImageIndex
     OnGetHint = vstToolbarButtonsGetHint
+    OnHeaderClick = vstToolbarButtonsHeaderClick
     OnIncrementalSearch = vstToolbarButtonsIncrementalSearch
+    OnKeyPress = vstToolbarButtonsKeyPress
     OnMouseDown = vstToolbarButtonsMouseDown
     OnNodeClick = vstToolbarButtonsNodeClick
     Columns = <
@@ -170,34 +184,140 @@ object frmSpy: TfrmSpy
   end
   object btnQuit: TButton
     Left = 697
-    Top = 311
+    Top = 324
     Width = 80
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'Close'
-    TabOrder = 5
+    Caption = 'Cl&ose'
+    TabOrder = 13
     OnClick = btnQuitClick
   end
   object btnReloadData: TButton
     Left = 598
-    Top = 311
+    Top = 324
     Width = 80
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'Reload'
-    Default = True
-    TabOrder = 4
+    Caption = '&Reload'
+    TabOrder = 12
     OnClick = btnReloadDataClick
   end
+  object btnSearchBackwards: TButton
+    Left = 396
+    Top = 304
+    Width = 22
+    Height = 22
+    Hint = 'Search backwards'
+    Anchors = [akRight, akBottom]
+    Caption = '&<'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 7
+    OnClick = btnSearchClick
+  end
+  object btnSearchForwards: TButton
+    Left = 424
+    Top = 304
+    Width = 22
+    Height = 22
+    Hint = 'Search forwards'
+    Anchors = [akRight, akBottom]
+    Caption = '&>'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 8
+    OnClick = btnSearchClick
+  end
+  object rbtSearchForMenuItem: TRadioButton
+    Left = 292
+    Top = 331
+    Width = 73
+    Height = 17
+    Anchors = [akLeft, akBottom]
+    Caption = '&Menu item'
+    Checked = True
+    TabOrder = 10
+    TabStop = True
+    OnClick = rbtSearchForClick
+  end
+  object rbtSearchForCommandId: TRadioButton
+    Left = 370
+    Top = 331
+    Width = 85
+    Height = 17
+    Anchors = [akLeft, akBottom]
+    Caption = '&Command id'
+    TabOrder = 11
+    TabStop = True
+    OnClick = rbtSearchForClick
+  end
+  object chkWrapAround: TCheckBox
+    Left = 458
+    Top = 306
+    Width = 83
+    Height = 17
+    Hint = 
+      'When search reaches start/end of list,'#13#10'continue from other end ' +
+      'of list'
+    Anchors = [akRight, akBottom]
+    Caption = '&Wrap around'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 9
+    OnClick = chkWrapAroundClick
+  end
+  object chkSearchSelectMenuItems: TCheckBox
+    Left = 8
+    Top = 287
+    Width = 97
+    Height = 17
+    Hint = 'Search in menu items tree'
+    Anchors = [akLeft, akBottom]
+    Caption = '&Select for search'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+    OnClick = chkSearchSelectClick
+  end
+  object chkSearchSelectToolbarButtons: TCheckBox
+    Left = 680
+    Top = 287
+    Width = 97
+    Height = 17
+    Hint = 'Search in toolbar buttons tree'
+    Alignment = taLeftJustify
+    Anchors = [akRight, akBottom]
+    Caption = 'Selec&t for search'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 3
+    OnClick = chkSearchSelectClick
+  end
+  object cbxSearchText: TComboBox
+    Left = 228
+    Top = 304
+    Width = 162
+    Height = 21
+    Hint = 
+      'Enter search term (case insensitive)'#13#10'Press ENTER to search forw' +
+      'ards'#13#10'Press CTRL+ENTER to search backwards'
+    AutoComplete = False
+    Anchors = [akLeft, akRight, akBottom]
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 6
+    OnChange = cbxSearchTextChange
+    OnKeyUp = cbxSearchTextKeyUp
+  end
   object imlToolbarButtonIcons: TImageList
-    Left = 64
-    Top = 296
+    Left = 560
+    Top = 216
   end
   object mnuItemContextMenu: TPopupMenu
     AutoPopup = False
     OnPopup = mnuItemContextMenuPopup
-    Left = 296
-    Top = 296
+    Left = 696
+    Top = 216
     object mniCopyIcon: TMenuItem
       Caption = 'Copy Icon'
       OnClick = mniCopyItemDataClick

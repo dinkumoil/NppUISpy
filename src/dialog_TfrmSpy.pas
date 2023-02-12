@@ -29,14 +29,14 @@ uses
 
   VirtualTrees,
 
-  NppPlugin, NppPluginForms;
+  NppPlugin, NppPluginForms,
+
+  DataModule;
 
 
 type
   TfrmSpy = class(TNppPluginForm)
     vstMenuItems: TVirtualStringTree;
-    btnCollapse: TButton;
-    btnExpand: TButton;
 
     vstToolbarButtons: TVirtualStringTree;
     imlToolbarButtonIcons: TImageList;
@@ -46,11 +46,25 @@ type
     mniCopyText: TMenuItem;
     mniCopyCommandId: TMenuItem;
 
+    chkSearchSelectMenuItems: TCheckBox;
+    chkSearchSelectToolbarButtons: TCheckBox;
+
+    btnCollapse: TButton;
+    btnExpand: TButton;
+    cbxSearchText: TComboBox;
+    btnSearchBackwards: TButton;
+    btnSearchForwards: TButton;
+    chkWrapAround: TCheckBox;
+    lblSearchFor: TLabel;
+    rbtSearchForMenuItem: TRadioButton;
+    rbtSearchForCommandId: TRadioButton;
+
     btnReloadData: TButton;
     btnQuit: TButton;
 
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
     procedure FormDestroy(Sender: TObject);
 
     // .........................................................................
@@ -58,8 +72,12 @@ type
     procedure vstMenuItemsIncrementalSearch(Sender: TBaseVirtualTree;
       Node: PVirtualNode; const SearchText: string; var Result: Integer);
 
+    procedure vstMenuItemsKeyPress(Sender: TObject; var Key: Char);
+
     procedure vstMenuItemsMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+
+    procedure vstMenuItemsHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
 
     procedure vstMenuItemsNodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
 
@@ -87,8 +105,12 @@ type
     procedure vstToolbarButtonsIncrementalSearch(Sender: TBaseVirtualTree;
       Node: PVirtualNode; const SearchText: string; var Result: Integer);
 
+    procedure vstToolbarButtonsKeyPress(Sender: TObject; var Key: Char);
+
     procedure vstToolbarButtonsMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+
+    procedure vstToolbarButtonsHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
 
     procedure vstToolbarButtonsNodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
 
@@ -115,6 +137,13 @@ type
 
     procedure mnuItemContextMenuPopup(Sender: TObject);
     procedure mniCopyItemDataClick(Sender: TObject);
+
+    procedure chkSearchSelectClick(Sender: TObject);
+    procedure cbxSearchTextChange(Sender: TObject);
+    procedure cbxSearchTextKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure btnSearchClick(Sender: TObject);
+    procedure chkWrapAroundClick(Sender: TObject);
+    procedure rbtSearchForClick(Sender: TObject);
 
     procedure btnCollapseClick(Sender: TObject);
     procedure btnExpandClick(Sender: TObject);
@@ -164,12 +193,20 @@ type
     end;
 
   private
+    FSettings:         TSettings;
+    FSearchTree:       TBaseVirtualTree;
+    FSearchText:       string;
+    FSearchDirection:  TVTSearchDirection;
+
     FMenuItems:        TMenuItemTreeInfoList;
     FToolbarButtons:   TToolbarButtonTreeInfoList;
     FMouseButtonState: TShiftState;
     FHitInfo:          THitInfo;
+    FInternalChange:   boolean;
 
     procedure   UpdateGUI;
+    function    IterateTree(Tree: TBaseVirtualTree; StartNode: PVirtualNode; Direction: TVTSearchDirection; Callback: TVTGetNodeProc; Data: Pointer): PVirtualNode;
+    procedure   CheckNode(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
 
     procedure   ListMenuItems(AMenu: HMENU = 0; AList: TMenuItemTreeInfoList = nil);
     procedure   FillMenuItemTree(ANode: PVirtualNode = nil; AList: TMenuItemTreeInfoList = nil);
@@ -180,6 +217,7 @@ type
     procedure   FillToolbarButtonTree();
     function    GetToolbarButtonIdx(CmdId: cardinal): integer;
     function    FindNppToolbar(NppWnd: HWND): HWND;
+
 
   public
     constructor Create(NppParent: TNppPlugin); override;
@@ -238,14 +276,56 @@ end;
 // -----------------------------------------------------------------------------
 
 procedure TfrmSpy.FormCreate(Sender: TObject);
-begin
-  Caption := TXT_TITLE;
+var
+  Cnt: integer;
 
+begin
+  Caption                        := TXT_TITLE;
+
+  // Init trees
   FMenuItems                     := TMenuItemTreeInfoList.Create(true);
   FToolbarButtons                := TToolbarButtonTreeInfoList.Create(true);
 
   vstMenuItems.NodeDataSize      := SizeOf(TMenuItemTreeData);
   vstToolbarButtons.NodeDataSize := SizeOf(TToolbarButtonTreeData);
+
+  // Load settings file
+  FSettings                      := TSettings.Create(TSettings.FilePath);
+
+  // Apply settings to internal variables
+  case FSettings.SearchFocus of
+    sfMenuItemTree:      FSearchTree := vstMenuItems;
+    sfToolbarButtonTree: FSearchTree := vstToolbarButtons;
+    else                 FSearchTree := vstMenuItems;
+  end;
+
+  // Init more internal variables
+  FSearchDirection                   := sdForward;
+  FSearchText                        := '';
+
+  // Apply settings to GUI
+  if FSearchTree = vstMenuItems then
+    chkSearchSelectMenuItems.Checked := true
+
+  else if FSearchTree = vstToolbarButtons then
+    chkSearchSelectToolbarButtons.Checked := true;
+
+  chkWrapAround.Checked         := FSettings.WrapAround;
+  rbtSearchForMenuItem.Checked  := (FSettings.SearchType = stMenuItem);
+  rbtSearchForCommandId.Checked := (FSettings.SearchType = stCommandId);
+
+  // Apply search history to GUI
+  FInternalChange := true;
+
+  try
+    cbxSearchText.Clear;
+
+    for Cnt := 0 to Pred(FSettings.SearchHistoryLength) do
+      cbxSearchText.Items.Add(FSettings.SearchHistory[Cnt]);
+
+  finally
+    FInternalChange := false;
+  end;
 end;
 
 
@@ -255,10 +335,31 @@ begin
 end;
 
 
+procedure TfrmSpy.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = Chr(VK_ESCAPE) then
+    Close;
+end;
+
+
 procedure TfrmSpy.FormDestroy(Sender: TObject);
 begin
+  // Write back local variables to settings object
+  if FSearchTree = vstMenuItems then
+    FSettings.SearchFocus := sfMenuItemTree
+
+  else if FSearchTree = vstToolbarButtons then
+    FSettings.SearchFocus := sfToolbarButtonTree
+
+  else
+    FSettings.SearchFocus := sfMenuItemTree;
+
+  // Free internal lists
   FMenuItems.Clear;
   FToolbarButtons.Clear;
+
+  // Free and save settings object
+  FSettings.Free;
 end;
 
 
@@ -281,10 +382,33 @@ begin
 end;
 
 
+procedure TfrmSpy.vstMenuItemsKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not Assigned(vstMenuItems.FocusedNode) then exit;
+
+  if Key = Chr(VK_RETURN) then
+  begin
+    FMouseButtonState     := [ssLeft];
+
+    FHitInfo.HitNode      := vstMenuItems.FocusedNode;
+    FHitInfo.HitPositions := [hiOnItemLabel];
+    FHitInfo.HitColumn    := COL_MENUITEM_TEXT;
+
+    vstMenuItemsNodeClick(vstMenuItems, FHitInfo);
+  end;
+end;
+
+
 procedure TfrmSpy.vstMenuItemsMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   FMouseButtonState := Shift;
+end;
+
+
+procedure TfrmSpy.vstMenuItemsHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+begin
+  chkSearchSelectClick(chkSearchSelectMenuItems);
 end;
 
 
@@ -440,10 +564,33 @@ begin
 end;
 
 
+procedure TfrmSpy.vstToolbarButtonsKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not Assigned(vstToolbarButtons.FocusedNode) then exit;
+
+  if Key = Chr(VK_RETURN) then
+  begin
+    FMouseButtonState     := [ssLeft];
+
+    FHitInfo.HitNode      := vstToolbarButtons.FocusedNode;
+    FHitInfo.HitPositions := [hiOnItemLabel];
+    FHitInfo.HitColumn    := COL_TOOLBARBUTTON_HINT_TEXT;
+
+    vstToolbarButtonsNodeClick(vstToolbarButtons, FHitInfo);
+  end;
+end;
+
+
 procedure TfrmSpy.vstToolbarButtonsMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   FMouseButtonState := Shift;
+end;
+
+
+procedure TfrmSpy.vstToolbarButtonsHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+begin
+  chkSearchSelectClick(chkSearchSelectToolbarButtons);
 end;
 
 
@@ -670,6 +817,177 @@ begin
 end;
 
 
+procedure TfrmSpy.chkSearchSelectClick(Sender: TObject);
+begin
+  if FInternalChange then exit;
+
+  // Determine from clicked checkbox which tree should be searched and
+  // ensure that only ONE of the two checkboxes is checked
+  FInternalChange := true;
+
+  try
+    if Sender = chkSearchSelectMenuItems then
+    begin
+      chkSearchSelectMenuItems.Checked      := true;
+      chkSearchSelectToolbarButtons.Checked := false;
+      FSearchTree                           := vstMenuItems;
+    end
+
+    else if Sender = chkSearchSelectToolbarButtons then
+    begin
+      chkSearchSelectMenuItems.Checked      := false;
+      chkSearchSelectToolbarButtons.Checked := true;
+      FSearchTree                           := vstToolbarButtons;
+    end;
+
+  finally
+    FInternalChange := false;
+  end;
+end;
+
+
+procedure TfrmSpy.cbxSearchTextChange(Sender: TObject);
+var
+  CursPos: integer;
+
+begin
+  if FInternalChange then exit;
+
+  // Set color of search term to default value and
+  // retrieve current search term
+  FSearchText              := cbxSearchText.Text;
+  CursPos                  := cbxSearchText.SelStart + cbxSearchText.SelLength;
+  cbxSearchText.Font.Color := clWindowText;
+  cbxSearchText.SelStart   := CursPos;
+  cbxSearchText.SelLength  := 0;
+end;
+
+
+procedure TfrmSpy.cbxSearchTextKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_RETURN then
+  begin
+    if not (ssCtrl in Shift) then
+      // Pressing ENTER when combobox with search term has input focus
+      // performs a forward search
+      btnSearchClick(btnSearchForwards)
+    else
+      // Pressing CTRL+ENTER when combobox with search term has input focus
+      // performs a backward search
+      btnSearchClick(btnSearchBackwards);
+  end;
+end;
+
+
+procedure TfrmSpy.chkWrapAroundClick(Sender: TObject);
+begin
+  FSettings.WrapAround := chkWrapAround.Checked;
+end;
+
+
+procedure TfrmSpy.btnSearchClick(Sender: TObject);
+var
+  Node:    PVirtualNode;
+  Cnt:     integer;
+  CursPos: integer;
+
+begin
+  // Ignore empty search term
+  if FSearchText = '' then exit;
+
+  // Determine search direction from clicked button
+  if Sender = btnSearchBackwards then
+    FSearchDirection := sdBackward
+
+  else if Sender = btnSearchForwards then
+    FSearchDirection := sdForward
+
+  else
+    exit;
+
+  // Store search term in search history
+  FInternalChange := true;
+
+  try
+    // This does all the nitty-gritty details like limiting maximum lenght of
+    // search history, pushing older items to the end of the history list and
+    // pushing already existing items to the beginning of the list
+    FSettings.SearchHistory[0] := FSearchText;
+
+    // Mirror search history to GUI
+    cbxSearchText.Clear;
+
+    for Cnt := 0 to Pred(FSettings.SearchHistoryLength) do
+      cbxSearchText.Items.Add(FSettings.SearchHistory[Cnt]);
+
+    // Set search term as selected item of combobox again
+    cbxSearchText.ItemIndex := cbxSearchText.Items.IndexOf(FSearchText);
+
+  finally
+    FInternalChange := false;
+  end;
+
+  // Search for search term
+  if not Assigned(FSearchTree.FocusedNode) then
+    // If there is no selected item in the tree, search from first item onwards
+    Node := IterateTree(FSearchTree, FSearchTree.GetFirst, FSearchDirection, CheckNode, PChar(FSearchText))
+  else
+  begin
+    // Search from succesor of currently selected item onwards.
+    // Depends on choosen search direction.
+    case FSearchDirection of
+      sdForward:  Node := IterateTree(FSearchTree, FSearchTree.GetNext(FSearchTree.FocusedNode), FSearchDirection, CheckNode, PChar(FSearchText));
+      sdBackward: Node := IterateTree(FSearchTree, FSearchTree.GetPrevious(FSearchTree.FocusedNode), FSearchDirection, CheckNode, PChar(FSearchText));
+      else        Node := nil;
+    end;
+
+    // If search has reached first/last element of the tree (depending on choosen
+    // search direction) without finding a match and "Wrap around" is ticked,
+    // search again from the opposite end of the tree
+    if not Assigned(Node) and FSettings.WrapAround then
+    begin
+      case FSearchDirection of
+        sdForward:  Node := IterateTree(FSearchTree, FSearchTree.GetFirst, FSearchDirection, CheckNode, PChar(FSearchText));
+        sdBackward: Node := IterateTree(FSearchTree, FSearchTree.GetLast, FSearchDirection, CheckNode, PChar(FSearchText));
+        else        Node := nil;
+      end;
+    end;
+  end;
+
+  if not Assigned(Node) then
+  begin
+    // If the search didn't match, change color of search term to red
+    CursPos                  := cbxSearchText.SelStart + cbxSearchText.SelLength;
+    cbxSearchText.Font.Color := clRed;
+    cbxSearchText.SelStart   := CursPos;
+    cbxSearchText.SelLength  := 0;
+  end
+  else
+  begin
+    // If the search matched, set color of search term to default value ...
+    CursPos                    := cbxSearchText.SelStart + cbxSearchText.SelLength;
+    cbxSearchText.Font.Color   := clWindowText;
+    cbxSearchText.SelStart     := CursPos;
+    cbxSearchText.SelLength    := 0;
+
+    // ... and select and focus matching tree node
+    FSearchTree.Selected[Node] := true;
+    FSearchTree.FocusedNode    := Node;
+  end;
+end;
+
+
+procedure TfrmSpy.rbtSearchForClick(Sender: TObject);
+begin
+  // Determine search type from clicked radio button
+  if Sender = rbtSearchForMenuItem then
+    FSettings.SearchType := stMenuItem
+
+  else if Sender = rbtSearchForCommandId then
+    FSettings.SearchType := stCommandId;
+end;
+
+
 procedure TfrmSpy.btnCollapseClick(Sender: TObject);
 begin
   vstMenuItems.FullCollapse();
@@ -715,6 +1033,98 @@ begin
   // Fill the trees with the collected data
   FillMenuItemTree();
   FillToolbarButtonTree();
+end;
+
+
+function TfrmSpy.IterateTree(Tree: TBaseVirtualTree; StartNode: PVirtualNode; Direction: TVTSearchDirection; Callback: TVTGetNodeProc; Data: Pointer): PVirtualNode;
+var
+  CurNode:       PVirtualNode;
+  TmpNode:       PVirtualNode;
+  StopIteration: boolean;
+
+begin
+  Result        := nil;
+  StopIteration := false;
+
+  CurNode := StartNode;
+
+  while Assigned(CurNode) do
+  begin
+    Callback(Tree, CurNode, Data, StopIteration);
+    if StopIteration then exit(CurNode);
+
+    if Tree.HasChildren[CurNode] then
+    begin
+      case Direction of
+        sdForward:  TmpNode := IterateTree(Tree, Tree.GetNext(CurNode), Direction, Callback, Data);
+        sdBackward: TmpNode := IterateTree(Tree, Tree.GetPrevious(CurNode), Direction, Callback, Data);
+        else        TmpNode := nil;
+      end;
+
+      if Assigned(TmpNode) then
+        exit(TmpNode);
+
+      CurNode := TmpNode;
+    end
+    else
+    begin
+      case Direction of
+        sdForward:  CurNode := Tree.GetNext(CurNode);
+        sdBackward: CurNode := Tree.GetPrevious(CurNode);
+        else        CurNode := nil;
+      end;
+    end;
+  end;
+end;
+
+
+procedure TfrmSpy.CheckNode(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
+var
+  SearchText:            string;
+  CmdId:                 integer;
+  CmdIdValid:            boolean;
+  MenuItemNodeData:      PMenuItemTreeData;
+  ToolbarButtonNodeData: PToolbarButtonTreeData;
+
+begin
+  SearchText := PChar(Data);
+  CmdIdValid := TryStrToInt(SearchText, CmdId);
+
+  if Sender = vstMenuItems then
+  begin
+    MenuItemNodeData := PMenuItemTreeData(Sender.GetNodeData(Node));
+
+    case FSettings.SearchType of
+      stMenuItem:
+      begin
+        Abort := ContainsText(MenuItemNodeData.NppMenuItem.Text, SearchText);
+      end;
+
+      stCommandId:
+      begin
+        if CmdIdValid then
+          Abort := (MenuItemNodeData.NppMenuItem.CmdId = cardinal(CmdId));
+      end;
+    end;
+  end
+
+  else if Sender = vstToolbarButtons then
+  begin
+    ToolbarButtonNodeData := PToolbarButtonTreeData(Sender.GetNodeData(Node));
+
+    case FSettings.SearchType of
+      stMenuItem:
+      begin
+        Abort := ContainsText(ToolbarButtonNodeData.NppToolbarButton.HintText, SearchText);
+      end;
+
+      stCommandId:
+      begin
+        if CmdIdValid then
+          Abort := (ToolbarButtonNodeData.NppToolbarButton.CmdId = cardinal(CmdId));
+      end;
+    end;
+  end;
 end;
 
 
@@ -847,6 +1257,10 @@ begin
     begin
       vstMenuItems.EndUpdate;
       vstMenuItems.Refresh;
+
+      Node                        := vstMenuItems.GetFirst;
+      vstMenuItems.Selected[Node] := true;
+      vstMenuItems.FocusedNode    := Node;
     end;
   end
 end;
@@ -1077,6 +1491,10 @@ begin
   finally
     vstToolbarButtons.EndUpdate;
     vstToolbarButtons.Refresh;
+
+    Node                             := vstToolbarButtons.GetFirst;
+    vstToolbarButtons.Selected[Node] := true;
+    vstToolbarButtons.FocusedNode    := Node;
   end
 end;
 
