@@ -84,14 +84,14 @@ object frmSpy: TfrmSpy
         MinWidth = 80
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus]
         Position = 1
-        Width = 234
+        Width = 240
         WideText = 'Menu Items'
       end
       item
         MinWidth = 30
         Options = [coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coVisible, coAutoSpring, coSmartResize, coAllowFocus]
         Position = 2
-        Width = 69
+        Width = 75
         WideText = 'Command Id'
       end>
   end
