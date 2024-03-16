@@ -35,20 +35,23 @@ const
   NPPMSG                         = (WM_USER + 1000);
 
   NPPM_GETCURRENTSCINTILLA       = (NPPMSG + 4);
-  // void NPPM_GETCURRENTSCINTILLA(0, INT *currentEdit)
+  // BOOL NPPM_GETCURRENTSCINTILLA(0, INT *currentEdit)
   // currentEdit indicates the current Scintilla view:
   //   0 is the main Scintilla view
   //   1 is the second Scintilla view.
+  // Returns TRUE
 
   NPPM_GETCURRENTLANGTYPE        = (NPPMSG + 5);
-  // void NPPM_GETCURRENTLANGTYPE(0, INT *langType)
+  // BOOL NPPM_GETCURRENTLANGTYPE(0, INT *langType)
   // langType indicates the language type of current Scintilla view document
   // please see the enum LangType for all possible value.
+  // Returns TRUE
 
   NPPM_SETCURRENTLANGTYPE        = (NPPMSG + 6);
-  // void NPPM_GETCURRENTLANGTYPE(0, INT langTypeToSet)
+  // BOOL NPPM_GETCURRENTLANGTYPE(0, INT langTypeToSet)
   // langTypeToSet is language type to set in current Scintilla view document
   // please see the enum LangType for all possible value
+  // Returns TRUE
 
   NPPM_GETNBOPENFILES            = (NPPMSG + 7);
   // INT NPPM_GETNBOPENFILES(0, INT nbType)
@@ -68,7 +71,7 @@ const
   // array.
 
   NPPM_MODELESSDIALOG            = (NPPMSG + 12);
-  // void NPPM_MODELESSDIALOG(INT op, HWND hDlg)
+  // HWND NPPM_MODELESSDIALOG(INT op, HWND hDlg)
   // For each created dialog in your plugin, you should register it to Notepad++
   // (and unregister while destroying it) by using this message. If this message
   // is ignored, then your dialog won't react with the key stroke messages such
@@ -77,6 +80,7 @@ const
   //   hDlg: handle of the dialog to be registed.
   //   op:   operation mode. MODELESSDIALOGADD is to register;
   //                         MODELESSDIALOGREMOVE is to unregister.
+	// Returns hDlg (HWND) on success, NULL on failure
     MODELESSDIALOGADD    = 0;
     MODELESSDIALOGREMOVE = 1;
 
@@ -93,19 +97,24 @@ const
   // sessionFileArray is the array in which the files' full path of the same
   // group are written. You should send message NPPM_GETNBSESSIONFILES before
   // to allocate this array with the proper size.
-  // The return value is the number of file full path names copied in sessionFileArray.
+	// Returns FALSE on failure, TRUE on success
 
   NPPM_SAVESESSION               = (NPPMSG + 15);  // see TSessionInfo
-  // void NPPM_SAVESESSION(0, TSessionInfo *sessionInfomation)
+  // TCHAR *NPPM_SAVESESSION(0, TSessionInfo *sessionInfomation)
   // This message let plugins save a session file (xml format) by providing an
   // array of full file path names.
+	// Contrary to NPPM_SAVECURRENTSESSION (see below), which saves the current
+  // opened files, this call can be used to freely define any file which should
+  // be part of a session.
+	// Returns sessionInfomation.sessionFilePathName on success, NULL otherwise
 
   NPPM_SAVECURRENTSESSION        = (NPPMSG + 16);
-  // void NPPM_SAVECURRENTSESSION(0, const TCHAR *sessionFileName)
+  // TCHAR *NPPM_SAVECURRENTSESSION(0, const TCHAR *sessionFileName)
   // You can save the current opened files in Notepad++ as a group of files
   // (session) by using this message. Notepad++ saves the current opened files'
   // full pathe names and their current stats in an xml file. The xml full path
   // name is provided by sessionFileName.
+	// Returns sessionFileName on success, NULL otherwise
 
   NPPM_GETOPENFILENAMESPRIMARY   = (NPPMSG + 17);
   // INT NPPM_GETOPENFILENAMESPRIMARY(TCHAR **fileNames, INT nbFile)
@@ -137,9 +146,10 @@ const
   // is Notepad++.
 
   NPPM_DESTROYSCINTILLAHANDLE    = (NPPMSG + 21);
-  // void NPPM_DESTROYSCINTILLAHANDLE(0, HWND scintillaHandle2Destroy)
+  // BOOL NPPM_DESTROYSCINTILLAHANDLE(0, HWND scintillaHandle2Destroy)
   // If plugin called NPPM_CREATESCINTILLAHANDLE to create a Scintilla handle,
   // it should call this message to destroy this handle while it exits.
+	// Returns TRUE
 
   NPPM_GETNBUSERLANG             = (NPPMSG + 22);
   // INT NPPM_GETNBUSERLANG(0, INT *userLangCmdId)
@@ -180,46 +190,57 @@ const
     NPPMAINMENU   = 1;
 
   NPPM_ENCODESCI                 = (NPPMSG + 26);
-  // int NPPM_ENCODESCI(MAIN_VIEW/SUB_VIEW, 0)
-  // ascii file to unicode
-  // return new unicodeMode
+  // TUniMode NPPM_ENCODESCI(int inView, 0)
+	// Changes current buffer in view to UTF-8.
+	// - inView:
+  //    MAIN_VIEW = 0
+  //    SUB_VIEW  = 1
+	// Returns new UniMode, see TUniMode
 
   NPPM_DECODESCI                 = (NPPMSG + 27);
-  // int NPPM_DECODESCI(MAIN_VIEW/SUB_VIEW, 0)
-  // unicode file to ascii
-  // return old unicodeMode
+	// TUniMode NPPM_DECODESCI(int inView, 0)
+	// Changes current buffer in view to ANSI.
+	// - inView:
+  //    MAIN_VIEW = 0
+  //    SUB_VIEW  = 1
+	// Returns old UniMode - see TUniMode
 
   NPPM_ACTIVATEDOC               = (NPPMSG + 28);
-  // void NPPM_ACTIVATEDOC(INT view, INT index2Activate)
+  // BOOL NPPM_ACTIVATEDOC(INT view, INT index2Activate)
   // When Notepad++ receives this message, it switches to iView (MAIN_VIEW or
-  // SUB_VIEW) as current view, then it switches to index2Activate from the
-  // current document.
+  // SUB_VIEW) as current view, then it switches to the index2Activate-th
+  // document of the view
   //   MAIN_VIEW = 0;
   //   SUB_VIEW  = 1;
+	// Returns TRUE
 
   NPPM_LAUNCHFINDINFILESDLG      = (NPPMSG + 29);
-  // void NPPM_LAUNCHFINDINFILESDLG(TCHAR *dir2Search, TCHAR *filter)
+  // BOOL NPPM_LAUNCHFINDINFILESDLG(TCHAR *dir2Search, TCHAR *filter)
   // This message triggers the Find in files dialog. The fields Directory and
   // filters are filled by respectively dir2Search and filter if those parameters
   // are not NULL or empty.
+	// Return TRUE
 
   NPPM_DMMSHOW                   = (NPPMSG + 30);
-  // void NPPM_DMMSHOW(0, HWND hDlg)
+  // BOOL NPPM_DMMSHOW(0, HWND hDlg)
   // This message is used for your plugin's dockable dialog. Send this message
   // to show the dialog. hDlg is the handle of your dialog to be shown (tTbData->hClient).
+	// Return TRUE
 
   NPPM_DMMHIDE                   = (NPPMSG + 31);
-  // void NPPM_DMMHIDE(0, HWND hDlg)
+  // BOOL NPPM_DMMHIDE(0, HWND hDlg)
   // This message is used for your plugin's dockable dialog. Send this message
   // to hide the dialog. hDlg is the handle of your dialog to be hidden (tTbData->hClient).
+	// Return TRUE
 
   NPPM_DMMUPDATEDISPINFO         = (NPPMSG + 32);
-  // void NPPM_DMMUPDATEDISPINFO(0, HWND hDlg)
+  // BOOL NPPM_DMMUPDATEDISPINFO(0, HWND hDlg)
   // This message is used for your plugin's dockable dialog. Send this message
   // to update (redraw) the dialog. hDlg is the handle of your dialog to be updated (tTbData->hClient).
+	// Return TRUE
 
   NPPM_DMMREGASDCKDLG            = (NPPMSG + 33);
-  // void NPPM_DMMREGASDCKDLG(0, TTbData *dockingData)
+  // BOOL NPPM_DMMREGASDCKDLG(0, TTbData *dockingData)
   // From v4.0, Notepad++ supports the dockable dialog feature for plugins.
   // This message passes the necessary data dockingData to Notepad++ in order
   // to make your dialog dockable. Minimum informations you need to fill out
@@ -227,45 +248,61 @@ const
   // dlgID, uMask and pszModuleName. Notice that rcFloat and iPrevCont shouldn't
   // be filled. They are used internally.
   // See TTbData
+	// Return TRUE
 
   NPPM_LOADSESSION               = (NPPMSG + 34);
-  // void NPPM_LOADSESSION(0, const TCHAR *sessionFileName)
+  // BOOL NPPM_LOADSESSION(0, const TCHAR *sessionFileName)
   // Open all files of same session in Notepad++ via a
   // xml format session file sessionFileName.
+	// Return TRUE
 
   NPPM_DMMVIEWOTHERTAB           = (NPPMSG + 35);
-  // void NPPM_DMMVIEWOTHERTAB(0, TTbData->pszName)
+  // BOOL NPPM_DMMVIEWOTHERTAB(0, TCHAR* name)
+	// Show the plugin dialog (switch to plugin tab) with the given name.
+	// - name should be the same value as previously used to register the dialog (pszName of tTbData)
+	// Return TRUE
+	// Return TRUE
 
   NPPM_RELOADFILE                = (NPPMSG + 36);
   // BOOL NPPM_RELOADFILE(BOOL withAlert, TCHAR *filePathName2Reload)
   // This Message reloads the file indicated in filePathName2Reload.
   // If withAlert is TRUE, then an alert message box will be launched.
+  // Since v8.6.5, returns TRUE if reloading file succeeds, otherwise FALSE
 
   NPPM_SWITCHTOFILE              = (NPPMSG + 37);
   // BOOL NPPM_SWITCHTOFILE(0, TCHAR *filePathName2switch)
   // When this message is received, Notepad++ switches to the document which
   // matches with the given filePathName2switch.
+	// Returns TRUE
 
   NPPM_SAVECURRENTFILE           = (NPPMSG + 38);
   // BOOL NPPM_SAVECURRENTFILE(0, 0)
   // Send this message to Notepad++ to save the current document.
+	// Return TRUE if file is saved, otherwise FALSE (the file doesn't need
+  // to be saved, or other reasons).
 
   NPPM_SAVEALLFILES              = (NPPMSG + 39);
   // BOOL NPPM_SAVEALLFILES(0, 0)
   // Send this message to Notepad++ to save all opened document.
+	// Return FALSE when no file needs to be saved, else TRUE if at least
+  // one file has been saved.
 
   NPPM_SETMENUITEMCHECK          = (NPPMSG + 40);
-  // void NPPM_SETMENUITEMCHECK(UINT cmdID, TRUE/FALSE)
+  // BOOL NPPM_SETMENUITEMCHECK(UINT cmdID, TRUE/FALSE)
   // Use this message to set/remove the check on menu item.
   // cmdID is the command ID which corresponds to the menu item.
+  // Returns TRUE
 
   NPPM_ADDTOOLBARICON_DEPRECATED = (NPPMSG + 41);
-  // void NPPM_ADDTOOLBARICON_DEPRECATED(UINT cmdID, TToolbarIcons *icon)
+  // BOOL NPPM_ADDTOOLBARICON_DEPRECATED(UINT cmdID, TToolbarIcons *icon)
   // see TToolbarIcons
-	// 2 formats of icon are needed: .ico & .bmp
-	// Both handles should be set so the icon will be displayed correctly if toolbar
-  // icon sets are changed by users
+	// Add an icon to the toolbar.
   // DEPRECATED: use NPPM_ADDTOOLBARICON_FORDARKMODE instead
+	// - CmdID is the plugin command ID which corresponds to the menu item: funcItem[X]._cmdID
+	// - icon is a TToolbaIcons structure containing icon handles. 2 formats are needed: .ico & .bmp
+  //   Both handles should be set so the icon will be displayed correctly if toolbar
+  //   icon sets are changed by users
+  // Returns TRUE
 
   NPPM_GETWINDOWSVERSION         = (NPPMSG + 42);
   // TWinVer NPPM_GETWINDOWSVERSION(0, 0)
@@ -282,16 +319,26 @@ const
 
   NPPM_MAKECURRENTBUFFERDIRTY    = (NPPMSG + 44);
   // BOOL NPPM_MAKECURRENTBUFFERDIRTY(0, 0)
+	// Make the current document dirty, aka set the save state to unsaved.
+	// Returns TRUE
 
   NPPM_GETENABLETHEMETEXTUREFUNC = (NPPMSG + 45);
-  // BOOL NPPM_GETENABLETHEMETEXTUREFUNC(0, 0)
+  // THEMEAPI NPPM_GETENABLETHEMETEXTUREFUNC(0, 0)
+	// Get "EnableThemeDialogTexture" function address.
+  // DEPRECATED: plugin can use EnableThemeDialogTexture directly from uxtheme.h instead
+	// Returns a proc address or NULL
 
   NPPM_GETPLUGINSCONFIGDIR       = (NPPMSG + 46);
   // INT NPPM_GETPLUGINSCONFIGDIR(int strLen, TCHAR *str)
-  // Where str is the allocated TCHAR array,
-  //       strLen is the allocated array size
-  // The return value is 1 when get generic_string operation success
-  // Otherwise (allocated array size is too small) 0
+	// Get user's plugin config directory path.
+	// - strLen is length of  allocated buffer in which directory path is copied
+	// - str is the allocated buffere.
+  // User should call this message twice:
+	//   - The 1st call with "str" be NULL to get the required number of TCHAR (not including the terminating nul character)
+	//   - The 2nd call to allocate "str" buffer with the 1st call's return value + 1, then call it again to get the path
+	// Return value:
+  //   - The 1st call - the number of TCHAR to copy.
+	//   - The 2nd call - FALSE on failure, TRUE on success
 
   NPPM_MSGTOPLUGIN               = (NPPMSG + 47);
   // BOOL NPPM_MSGTOPLUGIN(TCHAR *destModuleName, TCommunicationInfo *info)
@@ -306,16 +353,18 @@ const
   // see TCommunicationInfo
 
   NPPM_MENUCOMMAND               = (NPPMSG + 48);
-  // void NPPM_MENUCOMMAND(int param, UINT cmdID)
+  // BOOL NPPM_MENUCOMMAND(int param, UINT cmdID)
   // This message allows plugins to call all the Notepad++ menu commands.
   // See the command symbols defined in "NppMenuCmdID.pas" file
   // to access all the Notepad++ menu command items
+  // Returns TRUE
 
   NPPM_TRIGGERTABBARCONTEXTMENU  = (NPPMSG + 49);
-  // void NPPM_TRIGGERTABBARCONTEXTMENU(INT view, INT index2Activate)
+  // BOOL NPPM_TRIGGERTABBARCONTEXTMENU(INT view, INT index2Activate)
   // This message switches to iView (MAIN_VIEW or SUB_VIEW) as current view,
   // and to index2Activate from the current document. Finally it triggers the
   // tabbar context menu for the current document.
+  // Returns TRUE
 
   NPPM_GETNPPVERSION             = (NPPMSG + 50);
   // INT NPPM_GETNPPVERSION(BOOL ADD_ZERO_PADDING, 0)
@@ -324,26 +373,26 @@ const
   // Note that this message is supported by the v4.7 or higher version. Earlier
   // versions return 0.
   //
-	// ADD_ZERO_PADDING == TRUE
-	//
-	// version  | HIWORD | LOWORD
-	//------------------------------
-	// 8.9.6.4  | 8      | 964
-	// 9        | 9      | 0
-	// 6.9      | 6      | 900
-	// 6.6.6    | 6      | 660
-	// 13.6.6.6 | 13     | 666
-	//
-	//
-	// ADD_ZERO_PADDING == FALSE
-	//
-	// version  | HIWORD | LOWORD
-	//------------------------------
-	// 8.9.6.4  | 8      | 964
-	// 9        | 9      | 0
-	// 6.9      | 6      | 9
-	// 6.6.6    | 6      | 66
-	// 13.6.6.6 | 13     | 666
+  // ADD_ZERO_PADDING == TRUE
+  //
+  // version  | HIWORD | LOWORD
+  //------------------------------
+  // 8.9.6.4  | 8      | 964
+  // 9        | 9      | 0
+  // 6.9      | 6      | 900
+  // 6.6.6    | 6      | 660
+  // 13.6.6.6 | 13     | 666
+  //
+  //
+  // ADD_ZERO_PADDING == FALSE
+  //
+  // version  | HIWORD | LOWORD
+  //------------------------------
+  // 8.9.6.4  | 8      | 964
+  // 9        | 9      | 0
+  // 6.9      | 6      | 9
+  // 6.6.6    | 6      | 66
+  // 13.6.6.6 | 13     | 666
 
   NPPM_HIDETABBAR                = (NPPMSG + 51);
   // BOOL NPPM_HIDETABBAR(0, BOOL hideOrNot)
@@ -377,20 +426,21 @@ const
   // values + 1, then call it again to get full path file name
 
   NPPM_GETBUFFERIDFROMPOS        = (NPPMSG + 59);
-  // LRESULT NPPM_GETBUFFERIDFROMPOS(INT index, INT iView)
+  // UINT_PTR NPPM_GETBUFFERIDFROMPOS(INT index, INT iView)
   // index: Position of document
   // iView: View to use, 0 = Main, 1 = Secondary
-  // Returns 0 if invalid
+  // Returns 0 if invalid, otherwise bufferID
 
   NPPM_GETCURRENTBUFFERID        = (NPPMSG + 60);
-  // LRESULT NPPM_GETCURRENTBUFFERID(0, 0)
-  // Returns active Buffer
+  // UINT_PTR NPPM_GETCURRENTBUFFERID(0, 0)
+  // Returns active document BufferID
 
   NPPM_RELOADBUFFERID            = (NPPMSG + 61);
-  // VOID NPPM_RELOADBUFFERID(UINT_PTR bufferID, BOOL alert)
+  // BOOL NPPM_RELOADBUFFERID(UINT_PTR bufferID, BOOL alert)
   // Reloads Buffer
   // wParam: Buffer to reload
   // lParam: 0 if no alert, else alert
+	// Returns TRUE on success, FALSE otherwise
 
   NPPM_GETBUFFERLANGTYPE         = (NPPMSG + 64);
   // INT NPPM_GETBUFFERLANGTYPE(UINT_PTR bufferID, 0)
@@ -403,22 +453,22 @@ const
   // wParam: BufferID to set LangType of
   // lParam: TNppLang
   // Returns TRUE on success, FALSE otherwise
-  // use int, see TNppLang for possible values
+  // langType as int, see TNppLang for possible values
   // L_USER and L_EXTERNAL are not supported
 
   NPPM_GETBUFFERENCODING         = (NPPMSG + 66);
-  // INT NPPM_GETBUFFERENCODING(UINT_PTR bufferID, 0)
-  // wParam: BufferID to get encoding from
-  // lParam: 0
-  // returns as int, see TUniMode. -1 on error
+  // TUniMode NPPM_GETBUFFERENCODING(UINT_PTR bufferID, 0)
+	// Get encoding from the document with the given bufferID
+	// - BufferID is the BufferID of the document to get encoding from
+	// Returns -1 on error, otherwise UniMode, see TUniMode
 
   NPPM_SETBUFFERENCODING         = (NPPMSG + 67);
   // BOOL NPPM_SETBUFFERENCODING(UINT_PTR bufferID, INT encoding)
-  // wParam: BufferID to set encoding of
-  // lParam: format
-  // Returns TRUE on success, FALSE otherwise
-  // use int, see TUniMode
-  // Can only be done on new, unedited files
+	// Set encoding to the document with the given bufferID
+	// - bufferID is the BufferID of the document to set encoding of
+	// - encoding, see UniMode value in NPPM_GETBUFFERENCODING (above)
+	// Returns TRUE on success, FALSE otherwise
+	// Can only be done on new, unedited files
 
   NPPM_GETBUFFERFORMAT                 = (NPPMSG + 68);
   // INT NPPM_GETBUFFERFORMAT(UINT_PTR bufferID, 0)
@@ -507,6 +557,8 @@ const
   // BOOL NPPM_ALLOCATESUPPORTED(0, 0)
   // returns TRUE if NPPM_ALLOCATECMDID is supported
   // Use to identify if subclassing is necessary
+	// DEPRECATED: the message has been made (since 2010 AD) for checking if
+  // NPPM_ALLOCATECMDID is supported. This message is no more needed.
 
   NPPM_ALLOCATECMDID                   = (NPPMSG + 81);
   // BOOL NPPM_ALLOCATECMDID(INT numberRequested, UINT *startNumber)
@@ -520,6 +572,7 @@ const
   // BOOL NPPM_ALLOCATEMARKER(INT numberRequested, INT *startNumber)
   // Allows a plugin to obtain a number of consecutive marker IDs dynamically,
   // with the guarantee of these IDs not clashing with any other plugin.
+  // Usefull if a plugin needs to add a marker on Notepad++'s Scintilla marker margin.
   // Sets startNumber to the initial command ID if successful and to 0 if unsuccessful.
   // Returns: TRUE if successful, FALSE otherwise.
 
@@ -560,138 +613,183 @@ const
   // Only 2 possible values: 0 = Main, 1 = Secondary
 
   NPPM_DOCLISTDISABLEEXTCOLUMN         = (NPPMSG + 89);
-  // VOID NPPM_DOCLISTDISABLEEXTCOLUMN(0, BOOL disableOrNot)
+  // BOOL NPPM_DOCLISTDISABLEEXTCOLUMN(0, BOOL disableOrNot)
   // Disable or enable extension column of doc switcher
+  // Returns TRUE
 
   NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR = (NPPMSG + 90);
   // INT NPPM_GETEDITORDEFAULTFOREGROUNDCOLOR(0, 0)
-  // Return: current editor default foreground color. You should convert the returned value in COLORREF
+	// Returns the foreground color as integer with hex format being 0x00bbggrr
+  // You should convert the returned value in COLORREF
 
   NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR = (NPPMSG + 91);
   // INT NPPM_GETEDITORDEFAULTBACKGROUNDCOLOR(0, 0)
-  // Return: current editor default background color. You should convert the returned value in COLORREF
+	// Returns the background color as integer with hex format being 0x00bbggrr
+  // You should convert the returned value in COLORREF
 
   NPPM_SETSMOOTHFONT                   = (NPPMSG + 92);
-  // VOID NPPM_SETSMOOTHFONT(0, BOOL setSmoothFontOrNot)
+  // BOOL NPPM_SETSMOOTHFONT(0, BOOL setSmoothFontOrNot)
+	// Set (or remove) smooth font. The API uses underlying Scintilla
+  // command SCI_SETFONTQUALITY to manage the font quality.
+  // Returns TRUE
 
   NPPM_SETEDITORBORDEREDGE             = (NPPMSG + 93);
-  // VOID NPPM_SETEDITORBORDEREDGE(0, BOOL withEditorBorderEdgeOrNot)
+  // BOOL NPPM_SETEDITORBORDEREDGE(0, BOOL withEditorBorderEdgeOrNot)
+	// Add (or remove) an additional sunken edge style to the Scintilla window
+  // Returns TRUE
 
   NPPM_SAVEFILE                        = (NPPMSG + 94);
-  // VOID NPPM_SAVEFILE(0, const TCHAR *fileNameToSave)
+  // BOOL NPPM_SAVEFILE(0, const TCHAR *fileNameToSave)
+	// Save the file (opened in Notepad++) with the given full file name path.
+	// Returns TRUE on success, FALSE on fileNameToSave is not found
 
   NPPM_DISABLEAUTOUPDATE               = (NPPMSG + 95);
-  // VOID NPPM_DISABLEAUTOUPDATE(0, 0)
+  // BOOL NPPM_DISABLEAUTOUPDATE(0, 0)
+	// Disable Notepad++ auto-update.
+  // Returns TRUE
 
-	NPPM_REMOVESHORTCUTBYCMDID           = (NPPMSG + 96);
-	// BOOL NPPM_REMOVESHORTCUTASSIGNMENT(UINT cmdID, 0)
-	// removes the assigned shortcut mapped to cmdID
-	// returned value: TRUE if function call is successful, otherwise FALSE
+  NPPM_REMOVESHORTCUTBYCMDID           = (NPPMSG + 96);
+  // BOOL NPPM_REMOVESHORTCUTASSIGNMENT(UINT cmdID, 0)
+  // removes the assigned shortcut mapped to cmdID
+  // returned value: TRUE if function call is successful, otherwise FALSE
   // Introduced in v7.5.9
 
-	NPPM_GETPLUGINHOMEPATH               = (NPPMSG + 97);
-	// INT NPPM_GETPLUGINHOMEPATH(size_t strLen, TCHAR *pluginRootPath)
-	// Get plugin home root path. It's useful if plugins want to get its own path
-	// by appending <pluginFolderName> which is the name of plugin without extension part.
-	// Returns the number of TCHAR copied/to copy.
-	// Users should call it with pluginRootPath be NULL to get the required number of TCHAR
+  NPPM_GETPLUGINHOMEPATH               = (NPPMSG + 97);
+  // INT NPPM_GETPLUGINHOMEPATH(size_t strLen, TCHAR *pluginRootPath)
+  // Get plugin home root path. It's useful if plugins want to get its own path
+  // by appending <pluginFolderName> which is the name of plugin without extension part.
+  // Returns the number of TCHAR copied/to copy.
+  // Users should call it with pluginRootPath be NULL to get the required number of TCHAR
   // (not including the terminating nul character), allocate pluginRootPath buffer with
   // the return value + 1, then call it again to get the path.
   // Introduced in v7.6
 
-	NPPM_GETSETTINGSONCLOUDPATH          = (NPPMSG + 98);
-	// INT NPPM_GETSETTINGSCLOUDPATH(size_t strLen, TCHAR *settingsOnCloudPath)
-	// Get settings on cloud path. It's useful if plugins want to store its settings on Cloud, if this path is set.
-	// Returns the number of TCHAR copied/to copy. If the return value is 0, then this path is not set, or the "strLen" is not enough to copy the path.
-	// Users should call it with settingsCloudPath be NULL to get the required number of TCHAR (not including the terminating nul character),
-	// allocate settingsCloudPath buffer with the return value + 1, then call it again to get the path.
+  NPPM_GETSETTINGSONCLOUDPATH          = (NPPMSG + 98);
+  // INT NPPM_GETSETTINGSCLOUDPATH(size_t strLen, TCHAR *settingsOnCloudPath)
+  // Get settings on cloud path. It's useful if plugins want to store its settings on Cloud, if this path is set.
+  // Returns the number of TCHAR copied/to copy. If the return value is 0, then this path is not set, or the "strLen" is not enough to copy the path.
+  // Users should call it with settingsCloudPath be NULL to get the required number of TCHAR (not including the terminating nul character),
+  // allocate settingsCloudPath buffer with the return value + 1, then call it again to get the path.
   // Introduced in v7.9.2
 
-	NPPM_SETLINENUMBERWIDTHMODE          = (NPPMSG + 99);
-		LINENUMWIDTH_DYNAMIC  = 0;
-		LINENUMWIDTH_CONSTANT = 1;
-	// BOOL NPPM_SETLINENUMBERWIDTHMODE(0, INT widthMode)
-	// Set line number margin width in dynamic width mode (LINENUMWIDTH_DYNAMIC) or constant width mode (LINENUMWIDTH_CONSTANT)
-	// It may help some plugins to disable non-dynamic line number margins width to have a smoothly visual effect while vertical scrolling the content in Notepad++
-	// If calling is successful return TRUE, otherwise return FALSE.
+  NPPM_SETLINENUMBERWIDTHMODE          = (NPPMSG + 99);
+    LINENUMWIDTH_DYNAMIC  = 0;
+    LINENUMWIDTH_CONSTANT = 1;
+  // BOOL NPPM_SETLINENUMBERWIDTHMODE(0, INT widthMode)
+  // Set line number margin width in dynamic width mode (LINENUMWIDTH_DYNAMIC) or constant width mode (LINENUMWIDTH_CONSTANT)
+  // It may help some plugins to disable non-dynamic line number margins width to have a smoothly visual effect while vertical scrolling the content in Notepad++
+  // If calling is successful return TRUE, otherwise return FALSE.
   // Introduced in v7.9.2
 
-	NPPM_GETLINENUMBERWIDTHMODE          = (NPPMSG + 100);
-	// INT NPPM_GETLINENUMBERWIDTHMODE(0, 0)
-	// Get line number margin width in dynamic width mode (LINENUMWIDTH_DYNAMIC) or constant width mode (LINENUMWIDTH_CONSTANT)
+  NPPM_GETLINENUMBERWIDTHMODE          = (NPPMSG + 100);
+  // INT NPPM_GETLINENUMBERWIDTHMODE(0, 0)
+  // Get line number margin width in dynamic width mode (LINENUMWIDTH_DYNAMIC) or constant width mode (LINENUMWIDTH_CONSTANT)
   // Introduced in v7.9.2
-
 
   NPPM_ADDTOOLBARICON_FORDARKMODE      = (NPPMSG + 101);
-	// Use NPPM_ADDTOOLBARICON_FORDARKMODE instead obsolete NPPM_ADDTOOLBARICON which doesn't support the dark mode
+  // Use NPPM_ADDTOOLBARICON_FORDARKMODE instead obsolete NPPM_ADDTOOLBARICON which doesn't support the dark mode
   // void NPPM_ADDTOOLBARICON_FORDARKMODE(UINT cmdID, TToolbarIconsWithDarkMode iconHandles)
   // see TToolbarIconsWithDarkMode
-	// 2 formats / 3 icons are needed:  1 * BMP + 2 * ICO
-	// All 3 handles below should be set so the icon will be displayed correctly if toolbar icon sets are changed by users, also in dark mode
+  // 2 formats / 3 icons are needed:  1 * BMP + 2 * ICO
+  // All 3 handles below should be set so the icon will be displayed correctly if toolbar icon sets are changed by users, also in dark mode
   // Introduced in v8.0
 
-	NPPM_DOCLISTDISABLEPATHCOLUMN        = (NPPMSG + 102);
-	// VOID NPPM_DOCLISTDISABLEPATHCOLUMN(0, BOOL disableOrNot)
-	// Disable or enable path column of Document List
+  NPPM_DOCLISTDISABLEPATHCOLUMN        = (NPPMSG + 102);
+  // BOOL NPPM_DOCLISTDISABLEPATHCOLUMN(0, BOOL disableOrNot)
+  // Disable or enable path column of Document List
+  // Returns TRUE
   // Introduced in v8.1.5
 
-	NPPM_GETEXTERNALLEXERAUTOINDENTMODE  = (NPPMSG + 103);
-	// BOOL NPPM_GETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, TExternalLexerAutoIndentMode *autoIndentMode)
-	// Get TExternalLexerAutoIndentMode for an installed external programming language.
-	// - Standard means Notepad++ will keep the same TAB indentation between lines;
-	// - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
-	// - Custom means a Plugin will be controlling auto-indentation for the current language.
-	// returned values: TRUE for successful searches, otherwise FALSE.
+  NPPM_GETEXTERNALLEXERAUTOINDENTMODE  = (NPPMSG + 103);
+  // BOOL NPPM_GETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, TExternalLexerAutoIndentMode *autoIndentMode)
+  // Get TExternalLexerAutoIndentMode for an installed external programming language.
+  // - Standard means Notepad++ will keep the same TAB indentation between lines;
+  // - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
+  // - Custom means a Plugin will be controlling auto-indentation for the current language.
+  // returned values: TRUE for successful searches, otherwise FALSE.
   // Introduced in v8.3.3
 
-	NPPM_SETEXTERNALLEXERAUTOINDENTMODE  = (NPPMSG + 104);
-	// BOOL NPPM_SETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, TExternalLexerAutoIndentMode autoIndentMode)
-	// Set TExternalLexerAutoIndentMode for an installed external programming language.
-	// - Standard means Notepad++ will keep the same TAB indentation between lines;
-	// - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
-	// - Custom means a Plugin will be controlling auto-indentation for the current language.
-	// returned value: TRUE if function call was successful, otherwise FALSE.
+  NPPM_SETEXTERNALLEXERAUTOINDENTMODE  = (NPPMSG + 104);
+  // BOOL NPPM_SETEXTERNALLEXERAUTOINDENTMODE(const TCHAR *languageName, TExternalLexerAutoIndentMode autoIndentMode)
+  // Set TExternalLexerAutoIndentMode for an installed external programming language.
+  // - Standard means Notepad++ will keep the same TAB indentation between lines;
+  // - C_Like means Notepad++ will perform a C-Language style indentation for the selected external language;
+  // - Custom means a Plugin will be controlling auto-indentation for the current language.
+  // returned value: TRUE if function call was successful, otherwise FALSE.
   // Introduced in v8.3.3
 
-	NPPM_ISAUTOINDENTON                  = (NPPMSG + 105);
-	// BOOL NPPM_ISAUTOINDENTON(0, 0)
-	// Returns the current Use Auto-Indentation setting in Notepad++ Preferences.
+  NPPM_ISAUTOINDENTON                  = (NPPMSG + 105);
+  // BOOL NPPM_ISAUTOINDENTON(0, 0)
+  // Returns the current Use Auto-Indentation setting in Notepad++ Preferences.
   // Introduced in v8.3.3
 
-	NPPM_GETCURRENTMACROSTATUS           = (NPPMSG + 106);
-	// TMacroStatus NPPM_GETCURRENTMACROSTATUS(0, 0)
-	// Gets current TMacroStatus. Idle means macro is not in use and it's empty
+  NPPM_GETCURRENTMACROSTATUS           = (NPPMSG + 106);
+  // TMacroStatus NPPM_GETCURRENTMACROSTATUS(0, 0)
+  // Gets current TMacroStatus. Idle means macro is not in use and it's empty
   // Introduced in v8.3.3
 
-	NPPM_ISDARKMODEENABLED               = (NPPMSG + 107);
-	// bool NPPM_ISDARKMODEENABLED(0, 0)
-	// Returns true when Notepad++ Dark Mode is enable, false when it is not.
+  NPPM_ISDARKMODEENABLED               = (NPPMSG + 107);
+  // bool NPPM_ISDARKMODEENABLED(0, 0)
+  // Returns true when Notepad++ Dark Mode is enable, false when it is not.
   // Introduced in v8.4.1
 
-	NPPM_GETDARKMODECOLORS               = (NPPMSG + 108);
-	// bool NPPM_GETDARKMODECOLORS(size_t cbSize, TNppDarkModeColors *returnColors)
-	// - cbSize must be filled with sizeof(TNppDarkModeColors).
-	// - returnColors must be a pre-allocated TNppDarkModeColors struct.
-	// Returns true when successful, false otherwise.
+  NPPM_GETDARKMODECOLORS               = (NPPMSG + 108);
+  // bool NPPM_GETDARKMODECOLORS(size_t cbSize, TNppDarkModeColors *returnColors)
+  // - cbSize must be filled with sizeof(TNppDarkModeColors).
+  // - returnColors must be a pre-allocated TNppDarkModeColors struct.
+  // Returns true when successful, false otherwise.
   // Introduced in v8.4.1
 
-	NPPM_GETCURRENTCMDLINE               = (NPPMSG + 109);
-	// INT NPPM_GETCURRENTCMDLINE(size_t strLen, TCHAR *commandLineStr)
-	// Get the Current Command Line string.
-	// Returns the number of TCHAR copied/to copy.
-	// Users should call it with commandLineStr as NULL to get the required number of TCHAR (not including the terminating nul character),
-	// allocate commandLineStr buffer with the return value + 1, then call it again to get the current command line string.
+  NPPM_GETCURRENTCMDLINE               = (NPPMSG + 109);
+  // INT NPPM_GETCURRENTCMDLINE(size_t strLen, TCHAR *commandLineStr)
+  // Get the Current Command Line string.
+  // Returns the number of TCHAR copied/to copy.
+  // Users should call it with commandLineStr as NULL to get the required number of TCHAR (not including the terminating nul character),
+  // allocate commandLineStr buffer with the return value + 1, then call it again to get the current command line string.
   // Introduced in v8.4.2
 
-	NPPM_CREATELEXER                     = (NPPMSG + 110);
-	// void* NPPN_CREATELEXER(0, const TCHAR *lexer_name)
-	// Returns the ILexer pointer created by Lexilla
+  NPPM_CREATELEXER                     = (NPPMSG + 110);
+  // void* NPPN_CREATELEXER(0, const TCHAR *lexer_name)
+	// Get the ILexer pointer created by Lexilla. Call the lexilla "CreateLexer()"
+  // function to allow plugins to set the lexer for a Scintilla instance created
+  // by NPPM_CREATESCINTILLAHANDLE.
+	// - lexer_name is the name of the lexer
+	// Returns the ILexer pointer
   // Introduced in v8.4.3
 
-	NPPM_GETBOOKMARKID                   = (NPPMSG + 111);
-	// void* NPPM_GETBOOKMARKID(0, 0)
-	// Returns the bookmark ID
+  NPPM_GETBOOKMARKID                   = (NPPMSG + 111);
+  // void* NPPM_GETBOOKMARKID(0, 0)
+	// Get the bookmark ID - use this API to get bookmark ID dynamically that
+  // guarantees you get always the right bookmark ID even it's been changed
+  // through different versions of Scintilla.
+	// Returns bookmark ID
   // Introduced in v8.4.7
+
+	NPPM_DARKMODESUBCLASSANDTHEME        = (NPPMSG + 112);
+	// ULONG NPPM_DARKMODESUBCLASSANDTHEME(ULONG dmFlags, HWND hwnd)
+	// Add support for generic dark mode to plugin dialog. Subclassing is applied automatically unless DWS_USEOWNDARKMODE flag is used.
+	// Might not work properly in C# plugins.
+	// - dmFlags has 2 possible value dmfInit (0x0000000BUL) and dmfHandleChange (0x0000000CUL)
+	// - hwnd is the dialog handle of plugin. Docking panels don't need to call NPPM_DARKMODESUBCLASSANDTHEME
+	// Returns succesful combinations of flags.
+  // Introduced in v8.5.4
+
+	NPPM_ALLOCATEINDICATOR               = (NPPMSG + 113);
+	// BOOL NPPM_ALLOCATEINDICATOR(int numberRequested, int* startNumber)
+	// Allocates an indicator number to a plugin: if a plugin needs to add an indicator,
+	// it has to use this message to get the indicator number, in order to prevent a conflict with other plugins.
+	// - numberRequested is the number of indicators you request for reservation
+	// - startNumber will be set to the initial command ID if successful
+	// Returns TRUE if successful, FALSE otherwise. startNumber will also be set to 0 if unsuccessful
+  // Introduced in v8.5.6
+	//
+	// Example: If a plugin needs 1 indicator ID, the following code can be used :
+	//
+	//    int idBegin;
+	//    BOOL isAllocatedSuccessful = ::SendMessage(nppData._nppHandle, NPPM_ALLOCATEINDICATOR, 1, &idBegin);
+	//
+	// If isAllocatedSuccessful is TRUE and value of idBegin is 7,
+	// then indicator ID 7 is preserved by Notepad++ and it is safe to be used by the plugin.
 
 
 
@@ -923,22 +1021,39 @@ const
   // scnNotification->nmhdr.hwndFrom = hwndNpp;
   // scnNotification->nmhdr.idFrom = BufferID;
 
-	NPPN_DARKMODECHANGED         = (NPPN_FIRST + 27);
+  NPPN_DARKMODECHANGED         = (NPPN_FIRST + 27);
   // To notify plugins that Dark Mode was enabled/disabled
   // Use NPPM_ISDARKMODEENABLED to query Dark Mode status
-	// scnNotification->nmhdr.code = NPPN_DARKMODECHANGED;
-	// scnNotification->nmhdr.hwndFrom = hwndNpp;
-	// scnNotification->nmhdr.idFrom = 0;
+  // scnNotification->nmhdr.code = NPPN_DARKMODECHANGED;
+  // scnNotification->nmhdr.hwndFrom = hwndNpp;
+  // scnNotification->nmhdr.idFrom = 0;
   // Introduced in v8.4.1
 
-	NPPN_CMDLINEPLUGINMSG        = (NPPN_FIRST + 28);
+  NPPN_CMDLINEPLUGINMSG        = (NPPN_FIRST + 28);
   // To notify plugins that the new argument for plugins (via '-pluginMessage="YOUR_PLUGIN_ARGUMENT"'
   // in command line) is available
-	// scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
-	// scnNotification->nmhdr.hwndFrom = hwndNpp;
-	// scnNotification->nmhdr.idFrom = pluginMessage; // where pluginMessage is pointer of type wchar_t
+  // scnNotification->nmhdr.code = NPPN_CMDLINEPLUGINMSG;
+  // scnNotification->nmhdr.hwndFrom = hwndNpp;
+  // scnNotification->nmhdr.idFrom = pluginMessage;
+  // where pluginMessage is pointer of type wchar_t
   // Introduced in v8.4.2
 
+  NPPN_EXTERNALLEXERBUFFER     = (NPPN_FIRST + 29);
+  // To notify lexer plugins that the buffer (in idFrom) is just applied to an
+  // external lexer
+  // scnNotification->nmhdr.code = NPPN_EXTERNALLEXERBUFFER;
+  // scnNotification->nmhdr.hwndFrom = hwndNpp;
+  // scnNotification->nmhdr.idFrom = BufferID;
+  // Introduced in v8.5
+
+	NPPN_GLOBALMODIFIED          = (NPPN_FIRST + 30);
+  // To notify plugins that the current document is just modified by Replace All action.
+  // For solving the performance issue (from v8.6.4), Notepad++ doesn't trigger SCN_MODIFIED during Replace All action anymore.
+  // As a result, the plugins which monitor SCN_MODIFIED should also monitor NPPN_GLOBALMODIFIED.
+	// scnNotification->nmhdr.code = NPPN_GLOBALMODIFIED;
+	// scnNotification->nmhdr.hwndFrom = BufferID;
+	// scnNotification->nmhdr.idFrom = 0; // preserved for future use, must be zero
+  // Introduced in v8.6.5
 
   // ---------------------------------------------------------------------------
   // Defines for docking manager
@@ -993,17 +1108,18 @@ type
   // ---------------------------------------------------------------------------
   // Don't use L_JS, use L_JAVASCRIPT instead
   TNppLang = (
-    L_TEXT        , L_PHP    , L_C         , L_CPP       , L_CS          , L_OBJC      , L_JAVA   , L_RC          ,
-    L_HTML        , L_XML    , L_MAKEFILE  , L_PASCAL    , L_BATCH       , L_INI       , L_ASCII  , L_USER        ,
-    L_ASP         , L_SQL    , L_VB        , L_JS        , L_CSS         , L_PERL      , L_PYTHON , L_LUA         ,
-    L_TEX         , L_FORTRAN, L_BASH      , L_FLASH     , L_NSIS        , L_TCL       , L_LISP   , L_SCHEME      ,
-    L_ASM         , L_DIFF   , L_PROPS     , L_PS        , L_RUBY        , L_SMALLTALK , L_VHDL   , L_KIX         ,
-    L_AU3         , L_CAML   , L_ADA       , L_VERILOG   , L_MATLAB      , L_HASKELL   , L_INNO   , L_SEARCHRESULT,
-    L_CMAKE       , L_YAML   , L_COBOL     , L_GUI4CLI   , L_D           , L_POWERSHELL, L_R      , L_JSP         ,
-    L_COFFEESCRIPT, L_JSON   , L_JAVASCRIPT, L_FORTRAN_77, L_BAANC       , L_SREC      , L_IHEX   , L_TEHEX       ,
-    L_SWIFT       , L_ASN1   , L_AVS       , L_BLITZBASIC, L_PUREBASIC   , L_FREEBASIC , L_CSOUND , L_ERLANG      ,
-    L_ESCRIPT     , L_FORTH  , L_LATEX     , L_MMIXAL    , L_NIM         , L_NNCRONTAB , L_OSCRIPT, L_REBOL       ,
-    L_REGISTRY    , L_RUST   , L_SPICE     , L_TXT2TAGS  , L_VISUALPROLOG, L_TYPESCRIPT,
+    L_TEXT        , L_PHP      , L_C         , L_CPP       , L_CS          , L_OBJC      , L_JAVA   , L_RC          ,
+    L_HTML        , L_XML      , L_MAKEFILE  , L_PASCAL    , L_BATCH       , L_INI       , L_ASCII  , L_USER        ,
+    L_ASP         , L_SQL      , L_VB        , L_JS        , L_CSS         , L_PERL      , L_PYTHON , L_LUA         ,
+    L_TEX         , L_FORTRAN  , L_BASH      , L_FLASH     , L_NSIS        , L_TCL       , L_LISP   , L_SCHEME      ,
+    L_ASM         , L_DIFF     , L_PROPS     , L_PS        , L_RUBY        , L_SMALLTALK , L_VHDL   , L_KIX         ,
+    L_AU3         , L_CAML     , L_ADA       , L_VERILOG   , L_MATLAB      , L_HASKELL   , L_INNO   , L_SEARCHRESULT,
+    L_CMAKE       , L_YAML     , L_COBOL     , L_GUI4CLI   , L_D           , L_POWERSHELL, L_R      , L_JSP         ,
+    L_COFFEESCRIPT, L_JSON     , L_JAVASCRIPT, L_FORTRAN_77, L_BAANC       , L_SREC      , L_IHEX   , L_TEHEX       ,
+    L_SWIFT       , L_ASN1     , L_AVS       , L_BLITZBASIC, L_PUREBASIC   , L_FREEBASIC , L_CSOUND , L_ERLANG      ,
+    L_ESCRIPT     , L_FORTH    , L_LATEX     , L_MMIXAL    , L_NIM         , L_NNCRONTAB , L_OSCRIPT, L_REBOL       ,
+    L_REGISTRY    , L_RUST     , L_SPICE     , L_TXT2TAGS  , L_VISUALPROLOG, L_TYPESCRIPT, L_JSON5  , L_MSSQL       ,
+    L_GDSCRIPT    , L_HOLLYWOOD,
     // The end of enumerated language type, so it should be always at the end
     L_EXTERNAL
   );
@@ -1013,14 +1129,14 @@ type
   // Unicode mode enumeration
   // ---------------------------------------------------------------------------
   TUniMode = (
-    uni8Bit       = 0,
-    uniUTF8       = 1,
-    uni16BE       = 2,
-    uni16LE       = 3,
-    uniCookie     = 4,
-    uni7Bit       = 5,
-    uni16BE_NoBOM = 6,
-    uni16LE_NoBOM = 7,
+    uni8Bit       = 0,  // ANSI
+    uniUTF8       = 1,  // UTF-8 with BOM
+    uni16BE       = 2,  // UTF-16 Big Ending with BOM
+    uni16LE       = 3,  // UTF-16 Little Ending with BOM
+    uniCookie     = 4,  // UTF-8 without BOM
+    uni7Bit       = 5,  // uni7Bit
+    uni16BE_NoBOM = 6,  // UTF-16 Big Ending without BOM
+    uni16LE_NoBOM = 7,  // UTF-16 Little Ending without BOM
     uniEnd
   );
 
@@ -1059,6 +1175,16 @@ type
 
 
   // ---------------------------------------------------------------------------
+  // Support of generic dark mode for plugin dialogs
+  // See NPPM_DARKMODESUBCLASSANDTHEME
+  // ---------------------------------------------------------------------------
+  TNppDarkMode = (
+    dmfInit = $0000000B,
+    dmfHandleChange = $0000000C
+  );
+
+
+  // ---------------------------------------------------------------------------
   // Records for data exchange Notepad++ <-> Plugin
   // ---------------------------------------------------------------------------
 
@@ -1090,27 +1216,27 @@ type
 
 
   // Set plugin toolbar icon, use from Npp v8.0 onwards
-	TToolbarIconsWithDarkMode = record
-		ToolbarBmp:          HBITMAP;  // light mode 16x16
-		ToolbarIcon:         HICON;    // dark mode unfilled 16x16 or 32x32
-		ToolbarIconDarkMode: HICON;    // dark mode filled 16x16 or 32x32
-	end;
+  TToolbarIconsWithDarkMode = record
+    ToolbarBmp:          HBITMAP;  // light mode 16x16
+    ToolbarIcon:         HICON;    // dark mode unfilled 16x16 or 32x32
+    ToolbarIconDarkMode: HICON;    // dark mode filled 16x16 or 32x32
+  end;
 
 
-	TNppDarkModeColors = record
-		background:       COLORREF;
-		softerBackground: COLORREF;
-		hotBackground:    COLORREF;
-		pureBackground:   COLORREF;
-		errorBackground:  COLORREF;
-		text:             COLORREF;
-		darkerText:       COLORREF;
-		disabledText:     COLORREF;
-		linkText:         COLORREF;
-		edge:             COLORREF;
-		hotEdge:          COLORREF;
-		disabledEdge:     COLORREF;
-	end;
+  TNppDarkModeColors = record
+    background:       COLORREF;
+    softerBackground: COLORREF;
+    hotBackground:    COLORREF;
+    pureBackground:   COLORREF;
+    errorBackground:  COLORREF;
+    text:             COLORREF;
+    darkerText:       COLORREF;
+    disabledText:     COLORREF;
+    linkText:         COLORREF;
+    edge:             COLORREF;
+    hotEdge:          COLORREF;
+    disabledEdge:     COLORREF;
+  end;
 
 
   // Dockable dialogs

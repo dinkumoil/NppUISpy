@@ -90,6 +90,7 @@ const
   IDM_EDIT_DELETE                                  = (IDM_EDIT + 6);
   IDM_EDIT_SELECTALL                               = (IDM_EDIT + 7);
   IDM_EDIT_BEGINENDSELECT                          = (IDM_EDIT + 20);
+  IDM_EDIT_BEGINENDSELECT_COLUMNMODE               = (IDM_EDIT + 89);
 
   IDM_EDIT_INSERT_DATETIME_SHORT                   = (IDM_EDIT + 84);
   IDM_EDIT_INSERT_DATETIME_LONG                    = (IDM_EDIT + 85);
@@ -175,6 +176,17 @@ const
   IDM_EDIT_SEARCHONINTERNET                        = (IDM_EDIT + 75);
   IDM_EDIT_CHANGESEARCHENGINE                      = (IDM_EDIT + 76);
 
+  IDM_EDIT_MULTISELECTALL                          = (IDM_EDIT + 90);
+  IDM_EDIT_MULTISELECTALLMATCHCASE                 = (IDM_EDIT + 91);
+  IDM_EDIT_MULTISELECTALLMATCHCASEWHOLEWORD        = (IDM_EDIT + 93);
+  IDM_EDIT_MULTISELECTALLWHOLEWORD                 = (IDM_EDIT + 92);
+  IDM_EDIT_MULTISELECTNEXT                         = (IDM_EDIT + 94);
+  IDM_EDIT_MULTISELECTNEXTMATCHCASE                = (IDM_EDIT + 95);
+  IDM_EDIT_MULTISELECTNEXTMATCHCASEWHOLEWORD       = (IDM_EDIT + 97);
+  IDM_EDIT_MULTISELECTNEXTWHOLEWORD                = (IDM_EDIT + 96);
+  IDM_EDIT_MULTISELECTSSKIP                        = (IDM_EDIT + 99);
+  IDM_EDIT_MULTISELECTUNDO                         = (IDM_EDIT + 98);
+
   IDM_EDIT_COLUMNMODETIP                           = (IDM_EDIT + 37);
   IDM_EDIT_COLUMNMODE                              = (IDM_EDIT + 34);
   IDM_EDIT_CHAR_PANEL                              = (IDM_EDIT + 51);
@@ -231,6 +243,10 @@ const
   IDM_SEARCH_SELECTMATCHINGBRACES                  = (IDM_SEARCH + 53);
 
   IDM_SEARCH_MARK                                  = (IDM_SEARCH + 54);
+
+  IDM_SEARCH_CHANGED_NEXT                          = (IDM_SEARCH + 67);
+  IDM_SEARCH_CHANGED_PREV                          = (IDM_SEARCH + 68);
+  IDM_SEARCH_CLEAR_CHANGE_HISTORY                  = (IDM_SEARCH + 69);
 
   IDM_SEARCH_MARKALLEXT1                           = (IDM_SEARCH + 22);
   IDM_SEARCH_MARKALLEXT2                           = (IDM_SEARCH + 24);
@@ -299,6 +315,7 @@ const
   IDM_VIEW_ALWAYSONTOP                             = (IDM_VIEW + 34);
   IDM_VIEW_FULLSCREENTOGGLE                        = (IDM_VIEW + 32);
   IDM_VIEW_POSTIT                                  = (IDM_VIEW + 9);
+  IDM_VIEW_DISTRACTIONFREE                         = (IDM_VIEW + 11);
 
   IDM_VIEW_IN_FIREFOX                              = (IDM_VIEW + 100);
   IDM_VIEW_IN_CHROME                               = (IDM_VIEW + 101);
@@ -307,6 +324,8 @@ const
 
   IDM_VIEW_TAB_SPACE                               = (IDM_VIEW + 25);
   IDM_VIEW_EOL                                     = (IDM_VIEW + 26);
+  IDM_VIEW_NPC                                     = (IDM_VIEW + 130);
+  IDM_VIEW_NPC_CCUNIEOL                            = (IDM_VIEW + 131);
   IDM_VIEW_ALL_CHARACTERS                          = (IDM_VIEW + 19);
   IDM_VIEW_INDENT_GUIDE                            = (IDM_VIEW + 20);
   IDM_VIEW_WRAP_SYMBOL                             = (IDM_VIEW + 41);
@@ -331,6 +350,10 @@ const
   IDM_VIEW_TAB9                                    = (IDM_VIEW + 94);
   IDM_VIEW_TAB_NEXT                                = (IDM_VIEW + 95);
   IDM_VIEW_TAB_PREV                                = (IDM_VIEW + 96);
+  IDM_VIEW_TAB_START                               = (IDM_VIEW + 116);
+  IDM_VIEW_TAB_END                                 = (IDM_VIEW + 117);
+  IDM_VIEW_GOTO_START                              = 10005;
+  IDM_VIEW_GOTO_END                                = 10006;
   IDM_VIEW_TAB_MOVEFORWARD                         = (IDM_VIEW + 98);
   IDM_VIEW_TAB_MOVEBACKWARD                        = (IDM_VIEW + 99);
   IDM_VIEW_TAB_COLOUR_1                            = (IDM_VIEW + 111);
@@ -421,8 +444,6 @@ const
   IDM_VIEW_CURLINE_HILITING                        = (IDM_VIEW + 21);
 
   // The following items seem to be internal messages and not related to menu items
-  IDM_VIEW_DISTRACTIONFREE                         = (IDM_VIEW + 11);
-
   IDM_VIEW_REFRESHTABAR                            = (IDM_VIEW + 40);
 //  IDM_VIEW_DOCCHANGEMARGIN                         = (IDM_VIEW + 45);
   IDM_EXPORT_FUNC_LIST_AND_QUIT                    = (IDM_VIEW + 73);
@@ -604,6 +625,10 @@ const
   IDM_LANG_TXT2TAGS                                = (IDM_LANG + 82);
   IDM_LANG_VISUALPROLOG                            = (IDM_LANG + 83);
   IDM_LANG_TYPESCRIPT                              = (IDM_LANG + 84);
+  IDM_LANG_JSON5                                   = (IDM_LANG + 85);
+  IDM_LANG_MSSQL                                   = (IDM_LANG + 86);
+  IDM_LANG_GDSCRIPT                                = (IDM_LANG + 87);
+  IDM_LANG_HOLLYWOOD                               = (IDM_LANG + 88);
 
   IDM_LANG_EXTERNAL                                = (IDM_LANG + 165);
   IDM_LANG_EXTERNAL_LIMIT                          = (IDM_LANG + 179);
@@ -627,7 +652,7 @@ const
   IDM_SETTING_SHORTCUT_MAPPER                      = (IDM_SETTING + 9);
 
   IDM_SETTING_IMPORTPLUGIN                         = (IDM_SETTING + 5);
-  IDM_SETTING_IMPORTSTYLETHEMS                     = (IDM_SETTING + 6);
+  IDM_SETTING_IMPORTSTYLETHEMES                    = (IDM_SETTING + 6);
   IDM_SETTING_EDITCONTEXTMENU                      = (IDM_SETTING + 18);
 
   // Located in menu Macro
@@ -659,9 +684,15 @@ const
   IDM_TOOL_MD5_GENERATE                            = (IDM_TOOL + 1);
   IDM_TOOL_MD5_GENERATEFROMFILE                    = (IDM_TOOL + 2);
   IDM_TOOL_MD5_GENERATEINTOCLIPBOARD               = (IDM_TOOL + 3);
+  IDM_TOOL_SHA1_GENERATE                           = (IDM_TOOL + 7);
+  IDM_TOOL_SHA1_GENERATEFROMFILE                   = (IDM_TOOL + 8);
+  IDM_TOOL_SHA1_GENERATEINTOCLIPBOARD              = (IDM_TOOL + 9);
   IDM_TOOL_SHA256_GENERATE                         = (IDM_TOOL + 4);
   IDM_TOOL_SHA256_GENERATEFROMFILE                 = (IDM_TOOL + 5);
   IDM_TOOL_SHA256_GENERATEINTOCLIPBOARD            = (IDM_TOOL + 6);
+  IDM_TOOL_SHA512_GENERATE                         = (IDM_TOOL + 10);
+  IDM_TOOL_SHA512_GENERATEFROMFILE                 = (IDM_TOOL + 11);
+  IDM_TOOL_SHA512_GENERATEINTOCLIPBOARD            = (IDM_TOOL + 12);
 
 
   // ---------------------------------------------------------------------------

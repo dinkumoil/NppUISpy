@@ -106,6 +106,8 @@ type
     procedure   DoNppnSnapshotDirtyFileLoaded; virtual;
     procedure   DoNppnDarkModeChanged; virtual;
     procedure   DoNppnCmdLinePluginMsg; virtual;
+    procedure   DoNppExternalLexerBuffer; virtual;
+    procedure   DoNppGlobalModified; virtual;
 
     // Basic plugin properties
     property    PluginName:         nppString       read FPluginName         write FPluginName;
@@ -243,6 +245,7 @@ begin
 end;
 
 
+
 // -----------------------------------------------------------------------------
 // Plugin interface
 // -----------------------------------------------------------------------------
@@ -303,6 +306,8 @@ begin
     NPPN_TBMODIFICATION:          DoNppnToolbarModification;
     NPPN_DARKMODECHANGED:         DoNppnDarkModeChanged;
     NPPN_CMDLINEPLUGINMSG:        DoNppnCmdLinePluginMsg;
+    NPPN_EXTERNALLEXERBUFFER:     DoNppExternalLexerBuffer;
+    NPPN_GLOBALMODIFIED:          DoNppGlobalModified;
   end;
 end;
 
@@ -325,6 +330,7 @@ function TNppPlugin.GetName: nppPChar;
 begin
   Result := nppPChar(PluginName);
 end;
+
 
 
 // -----------------------------------------------------------------------------
@@ -396,6 +402,7 @@ procedure TNppPlugin.AddToolbarIconEx(CmdId: cardinal; var ToolbarIcon: TToolbar
 begin
   SendMessage(NppData.NppHandle, NPPM_ADDTOOLBARICON_FORDARKMODE, WPARAM(CmdId), LPARAM(@ToolbarIcon));
 end;
+
 
 
 // -----------------------------------------------------------------------------
@@ -1102,7 +1109,10 @@ end;
 
 
 // Notifies plugins that document order is changed,
-// buffer bufferID having index newIndex.
+// Tab dragged by mouse: buffer bufferID previously had index oldIndex.
+// hwndFrom = int oldIndex
+// idFrom   = int bufferID
+// Tab moved by menu command: buffer bufferID having index newIndex.
 // hwndFrom = int newIndex
 // idFrom   = int bufferID
 procedure TNppPlugin.DoNppnDocOrderChanged;
@@ -1152,6 +1162,29 @@ end;
 // hwndFrom = HWND hwndNpp
 // idFrom   = wchar_t *pluginMessage
 procedure TNppPlugin.DoNppnCmdLinePluginMsg;
+begin
+  // override this
+end;
+
+
+// Notifies lexer plugins that the buffer (in idFrom) is just applied to an
+// external lexer
+// scnNotification->nmhdr.code = NPPN_EXTERNALLEXERBUFFER;
+// scnNotification->nmhdr.hwndFrom = hwndNpp;
+// scnNotification->nmhdr.idFrom = BufferID;
+procedure TNppPlugin.DoNppExternalLexerBuffer;
+begin
+  // override this
+end;
+
+
+// Notifies plugins that the current document is just modified by Replace All action.
+// For solving the performance issue (from v8.6.4), Notepad++ doesn't trigger SCN_MODIFIED during Replace All action anymore.
+// As a result, the plugins which monitor SCN_MODIFIED should also monitor NPPN_GLOBALMODIFIED.
+// scnNotification->nmhdr.code = NPPN_GLOBALMODIFIED;
+// scnNotification->nmhdr.hwndFrom = BufferID;
+// scnNotification->nmhdr.idFrom = 0; // preserved for future use, must be zero
+procedure TNppPlugin.DoNppGlobalModified;
 begin
   // override this
 end;
