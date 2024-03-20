@@ -206,6 +206,7 @@ const
   SCI_SELECTALL                                    = 2013;
   SCI_SETSAVEPOINT                                 = 2014;
   SCI_GETSTYLEDTEXT                                = 2015;
+  SCI_GETSTYLEDTEXTFULL                            = 2778;
   SCI_CANREDO                                      = 2016;
   SCI_MARKERLINEFROMHANDLE                         = 2017;
   SCI_MARKERDELETEHANDLE                           = 2018;
@@ -481,6 +482,20 @@ const
   SCI_GETCHARACTERCATEGORYOPTIMIZATION             = 2721;
   SCI_BEGINUNDOACTION                              = 2078;
   SCI_ENDUNDOACTION                                = 2079;
+  SCI_GETUNDOACTIONS                               = 2790;
+  SCI_SETUNDOSAVEPOINT                             = 2791;
+  SCI_GETUNDOSAVEPOINT                             = 2792;
+  SCI_SETUNDODETACH                                = 2793;
+  SCI_GETUNDODETACH                                = 2794;
+  SCI_SETUNDOTENTATIVE                             = 2795;
+  SCI_GETUNDOTENTATIVE                             = 2796;
+  SCI_SETUNDOCURRENT                               = 2797;
+  SCI_GETUNDOCURRENT                               = 2798;
+  SCI_PUSHUNDOACTIONTYPE                           = 2800;
+  SCI_CHANGELASTUNDOACTIONTEXT                     = 2801;
+  SCI_GETUNDOACTIONTYPE                            = 2802;
+  SCI_GETUNDOACTIONPOSITION                        = 2803;
+  SCI_GETUNDOACTIONTEXT                            = 2804;
   INDIC_PLAIN                                      = 0;
   INDIC_SQUIGGLE                                   = 1;
   INDIC_TT                                         = 2;
@@ -504,6 +519,7 @@ const
   INDIC_GRADIENT                                   = 20;
   INDIC_GRADIENTCENTRE                             = 21;
   INDIC_POINT_TOP                                  = 22;
+  INDIC_EXPLORERLINK                               = 23;
   INDIC_CONTAINER                                  = 8;
   INDIC_IME                                        = 32;
   INDIC_IME_MAX                                    = 35;
@@ -573,6 +589,7 @@ const
   SCI_AUTOCGETAUTOHIDE                             = 2119;
   SC_AUTOCOMPLETE_NORMAL                           = 0;
   SC_AUTOCOMPLETE_FIXED_SIZE                       = 1;
+  SC_AUTOCOMPLETE_SELECT_FIRST_ITEM                = 2;
   SCI_AUTOCSETOPTIONS                              = 2638;
   SCI_AUTOCGETOPTIONS                              = 2639;
   SCI_AUTOCSETDROPRESTOFWORD                       = 2270;
@@ -699,6 +716,7 @@ const
   SCI_TARGETWHOLEDOCUMENT                          = 2690;
   SCI_REPLACETARGET                                = 2194;
   SCI_REPLACETARGETRE                              = 2195;
+  SCI_REPLACETARGETMINIMAL                         = 2779;
   SCI_SEARCHINTARGET                               = 2197;
   SCI_SETSEARCHFLAGS                               = 2198;
   SCI_GETSEARCHFLAGS                               = 2199;
@@ -1015,7 +1033,9 @@ const
   SC_SEL_LINES                                     = 2;
   SC_SEL_THIN                                      = 3;
   SCI_SETSELECTIONMODE                             = 2422;
+  SCI_CHANGESELECTIONMODE                          = 2659;
   SCI_GETSELECTIONMODE                             = 2423;
+  SCI_SETMOVEEXTENDSSELECTION                      = 2719;
   SCI_GETMOVEEXTENDSSELECTION                      = 2706;
   SCI_GETLINESELSTARTPOSITION                      = 2424;
   SCI_GETLINESELENDPOSITION                        = 2425;
@@ -1161,6 +1181,7 @@ const
   SCI_CLEARSELECTIONS                              = 2571;
   SCI_SETSELECTION                                 = 2572;
   SCI_ADDSELECTION                                 = 2573;
+  SCI_SELECTIONFROMPOINT                           = 2474;
   SCI_DROPSELECTIONN                               = 2671;
   SCI_SETMAINSELECTION                             = 2574;
   SCI_GETMAINSELECTION                             = 2575;
@@ -1289,7 +1310,7 @@ const
   SCI_GETLEXER                                     = 4002;
   SCI_COLOURISE                                    = 4003;
   SCI_SETPROPERTY                                  = 4004;
-  KEYWORDSET_MAX                                   = 8;
+  KEYWORDSET_MAX                                   = 30;
   SCI_SETKEYWORDS                                  = 4005;
   SCI_GETPROPERTY                                  = 4008;
   SCI_GETPROPERTYEXPANDED                          = 4009;
@@ -1382,6 +1403,7 @@ const
   SC_AC_TAB                                        = 3;
   SC_AC_NEWLINE                                    = 4;
   SC_AC_COMMAND                                    = 5;
+  SC_AC_SINGLE_CHOICE                              = 6;
   SC_CHARACTERSOURCE_DIRECT_INPUT                  = 0;
   SC_CHARACTERSOURCE_TENTATIVE_INPUT               = 1;
   SC_CHARACTERSOURCE_IME_RESULT                    = 2;
