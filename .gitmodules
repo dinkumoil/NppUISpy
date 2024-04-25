@@ -1,0 +1,4 @@
+[submodule "_pluginadmin"]
+	path = _pluginadmin
+	url = git@github.com:dinkumoil/nppPluginList.git
+	branch = master
