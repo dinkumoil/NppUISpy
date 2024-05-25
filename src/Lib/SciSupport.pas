@@ -24,7 +24,7 @@ unit SciSupport;
 
 
 // =============================================================================
-// Scintilla v5.4.3 as of Notepad++ v8.6.5
+// Scintilla v5.5.0 as of Notepad++ v8.6.6
 // =============================================================================
 
 interface
@@ -438,6 +438,8 @@ const
   SC_ELEMENT_SELECTION_SECONDARY_BACK              = 15;
   SC_ELEMENT_SELECTION_INACTIVE_TEXT               = 16;
   SC_ELEMENT_SELECTION_INACTIVE_BACK               = 17;
+  SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_TEXT    = 18;
+  SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK    = 19;
   SC_ELEMENT_CARET                                 = 40;
   SC_ELEMENT_CARET_ADDITIONAL                      = 41;
   SC_ELEMENT_CARET_LINE_BACK                       = 50;
