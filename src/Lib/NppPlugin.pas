@@ -132,8 +132,8 @@ type
 
     // Utils and Npp message wrappers
     function    CmdIdFromMenuItemIdx(MenuItemIdx: integer): cardinal;
-    procedure   CheckMenuItem(MenuItemIdx: integer; State: boolean);
-    procedure   PerformMenuCommand(MenuCmdId: cardinal; Param: integer = 0);
+    procedure   CheckMenuItem(MenuItemIdx: integer; State: boolean; Delayed: boolean = true);
+    procedure   PerformMenuCommand(MenuCmdId: cardinal; Param: integer = 0; Delayed: boolean = true);
 
     function    GetMajorVersion: integer;
     function    GetMinorVersion: integer;
@@ -178,6 +178,7 @@ type
     function    GetOpenFiles(CntType: integer): TStringDynArray;
 
     function    GetLineCount(AViewIdx: integer): NativeInt;
+    function    GetCurrentPos(AViewIdx: integer): NativeInt;
     function    GetLineFromPosition(AViewIdx: integer; APosition: NativeInt): NativeInt;
     function    GetFirstVisibleLine(AViewIdx: integer): NativeInt;
     function    GetLinesOnScreen(AViewIdx: integer): NativeInt;
@@ -415,15 +416,21 @@ begin
 end;
 
 
-procedure TNppPlugin.CheckMenuItem(MenuItemIdx: integer; State: boolean);
+procedure TNppPlugin.CheckMenuItem(MenuItemIdx: integer; State: boolean; Delayed: boolean = true);
 begin
-  PostMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
+  if Delayed then
+    PostMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State))
+  else
+    SendMessage(NppData.NppHandle, NPPM_SETMENUITEMCHECK, WPARAM(CmdIdFromMenuItemIdx(MenuItemIdx)), LPARAM(State));
 end;
 
 
-procedure TNppPlugin.PerformMenuCommand(MenuCmdId: cardinal; Param: integer = 0);
+procedure TNppPlugin.PerformMenuCommand(MenuCmdId: cardinal; Param: integer = 0; Delayed: boolean = true);
 begin
-  PostMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId));
+  if Delayed then
+    PostMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
+  else
+    SendMessage(NppData.NppHandle, NPPM_MENUCOMMAND, WPARAM(Param), LPARAM(MenuCmdId))
 end;
 
 
@@ -789,6 +796,16 @@ begin
     MAIN_VIEW: Result := SendMessage(NppData.ScintillaMainHandle, SCI_GETLINECOUNT, WPARAM(0), LPARAM(0));
     SUB_VIEW:  Result := SendMessage(NppData.ScintillaSecondHandle, SCI_GETLINECOUNT, WPARAM(0), LPARAM(0));
     else       Result := 0;
+  end;
+end;
+
+
+function TNppPlugin.GetCurrentPos(AViewIdx: integer): NativeInt;
+begin
+  case AViewIdx of
+    MAIN_VIEW: Result := SendMessage(NppData.ScintillaMainHandle, SCI_GETCURRENTPOS, WPARAM(0), LPARAM(0));
+    SUB_VIEW:  Result := SendMessage(NppData.ScintillaSecondHandle, SCI_GETCURRENTPOS, WPARAM(0), LPARAM(0));
+    else       Result := -1;
   end;
 end;
 
