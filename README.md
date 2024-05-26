@@ -2,7 +2,7 @@
 
 Builds for 32 and 64 bits Notepad++ installations available
 
-Author: Andreas Heim, 2018 - 2023
+Author: Andreas Heim, 2018 - 2024
 
 
 # Features
@@ -51,6 +51,13 @@ The following steps depend on the version of Notepad++ you use.
 
 
 # History
+
+v1.2.1 - May 2024
+- enhanced: Improved documentation for Notepad++ messages
+- enhanced: Added new Notepad++ message constants up to v8.6.5
+- enhanced: Added new Notepad++ menu command ids up to v8.6.5
+- enhanced: Added new Scintilla constants up to v5.5.0
+
 
 v1.2 - February 2023
 - enhanced: Added advanced search capabilities for menu item text, toolbar button hint text and menu command id.

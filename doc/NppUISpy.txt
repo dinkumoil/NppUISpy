@@ -1,10 +1,10 @@
 
 ********************************************************************************
 *                                                                              *
-*          NppUISpy plugin v1.2 for Notepad++                                  *
+*          NppUISpy plugin v1.2.1 for Notepad++                                *
 *          Builds for 32 and 64 bits Notepad++ installations available         *
 *                                                                              *
-*          Author: Andreas Heim, 2018 - 2023                                   *
+*          Author: Andreas Heim, 2018 - 2024                                   *
 *                                                                              *
 ********************************************************************************
 
@@ -34,14 +34,24 @@ box beneath the tree. The search term input field provides a search history.
 
 When pressing the ALT key, the UI shows underlined characters that can be
 pressed together with the ALT key to control the UI by keyboard. Additionally,
-when the search term input field has input focus, you can press ENTER to search
-forwards and CTRL+ENTER to search backwards.
+
+when the search term input field has input focus, you can press ENTER to search
+
+forwards and CTRL+ENTER to search backwards.
 
 
 
 ===========
   History
 ===========
+
+v1.2.1 - May 2024
+~~~~~~~~~~~~~~~~~
+- enhanced: Improved documentation for Notepad++ messages
+- enhanced: Added new Notepad++ message constants up to v8.6.5
+- enhanced: Added new Notepad++ menu command ids up to v8.6.5
+- enhanced: Added new Scintilla constants up to v5.5.0
+
 
 v1.2 - February 2023
 ~~~~~~~~~~~~~~~~~~~~
