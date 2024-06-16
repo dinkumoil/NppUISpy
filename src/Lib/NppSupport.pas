@@ -791,6 +791,24 @@ const
 	// If isAllocatedSuccessful is TRUE and value of idBegin is 7,
 	// then indicator ID 7 is preserved by Notepad++ and it is safe to be used by the plugin.
 
+	NPPM_GETTABCOLORID                   = (NPPMSG + 114);
+	// int NPPM_GETTABCOLORID(int view, int tabIndex)
+	// Get the tab color ID with given tab index and view.
+	// wParam[in]: view - main view (0) or sub-view (1) or -1 (active view)
+	// lParam[in]: tabIndex - index (in the view indicated above). -1 for currently active tab
+	// Returns tab color ID which contains the following values: 0 (yellow), 1 (green), 2 (blue), 3 (orange), 4 (pink) or -1 (no color)
+	// Note: there's no symetric command NPPM_SETTABCOLORID. Plugins can use NPPM_MENUCOMMAND to set current tab color with the desired tab color ID.
+  // Introduced in v8.6.8
+    ACTIVE_VIEW      = -1;
+    ACTIVE_TAB       = -1;
+
+    TABCOLOR_NOCOLOR = -1;
+    TABCOLOR_YELLOW  = 0;
+    TABCOLOR_GREEN   = 1;
+    TABCOLOR_BLUE    = 2;
+    TABCOLOR_ORANGE  = 3;
+    TABCOLOR_PINK    = 4;
+
 
 
   // ---------------------------------------------------------------------------
@@ -1119,7 +1137,7 @@ type
     L_SWIFT       , L_ASN1     , L_AVS       , L_BLITZBASIC, L_PUREBASIC   , L_FREEBASIC , L_CSOUND , L_ERLANG      ,
     L_ESCRIPT     , L_FORTH    , L_LATEX     , L_MMIXAL    , L_NIM         , L_NNCRONTAB , L_OSCRIPT, L_REBOL       ,
     L_REGISTRY    , L_RUST     , L_SPICE     , L_TXT2TAGS  , L_VISUALPROLOG, L_TYPESCRIPT, L_JSON5  , L_MSSQL       ,
-    L_GDSCRIPT    , L_HOLLYWOOD,
+    L_GDSCRIPT    , L_HOLLYWOOD, L_GOLANG    , L_RAKU      ,
     // The end of enumerated language type, so it should be always at the end
     L_EXTERNAL
   );
