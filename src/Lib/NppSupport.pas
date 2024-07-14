@@ -261,8 +261,7 @@ const
   // Show the plugin dialog (switch to plugin tab) with the given name.
   // - name should be the same value as previously used to register the dialog (pszName of tTbData)
   // Return TRUE
-  // Return TRUE
-
+  
   NPPM_RELOADFILE                = (NPPMSG + 36);
   // BOOL NPPM_RELOADFILE(BOOL withAlert, TCHAR *filePathName2Reload)
   // This Message reloads the file indicated in filePathName2Reload.
